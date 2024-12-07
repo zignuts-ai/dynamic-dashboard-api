@@ -131,7 +131,7 @@ module.exports = {
       }
 
       const keywords = await generateKeywords(prompt);
-      console.log('keywords: ', keywords);
+      console.log("keywords: ", keywords);
 
       if (!keywords) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
@@ -145,9 +145,8 @@ module.exports = {
       const news = await getNews({
         search: keywords,
       });
-     
-    
-      console.log('news: ', news);
+
+      console.log("news: ", news);
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: "",
@@ -166,11 +165,7 @@ module.exports = {
   },
   getArticlesSummery: async (req, res) => {
     try {
-      const prompt = req.body.prompt;
-      console.log("prompt: ", prompt);
-      console.log("req.body: ", req.body);
-      let articles = req.body.articles;
-      console.log("articles: ", articles);
+      const { prompt, articles } = req.body;
 
       if (!prompt || !articles) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
