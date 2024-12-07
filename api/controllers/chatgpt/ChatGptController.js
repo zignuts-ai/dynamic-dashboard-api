@@ -143,7 +143,7 @@ module.exports = {
       }
 
       const news = await getNews({
-        search: keywords,
+        search: keywords.news,
       });
 
       console.log("news: ", news);

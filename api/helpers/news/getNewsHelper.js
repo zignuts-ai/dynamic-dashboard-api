@@ -1,5 +1,4 @@
 const { getJson } = require("serpapi");
-
 const axios = require("axios");
 const cheerio = require("cheerio");
 const fs = require("fs");
@@ -23,7 +22,6 @@ async function getNews({
   try {
     let params = {
       q: search,
-
       tbm: "nws",
       max: 2,
       api_key: process.env.SERPE_API_SECRET_KEY,
@@ -35,30 +33,28 @@ async function getNews({
       params.engine = "google";
     }
     console.log("params: ", params);
-    let example;
+
     let data = await getJson(
       params,
       (json) =>
         json[params.engine == "google" ? "news_results" : "organic_results"]
     );
-    console.log("data1111: ", data.organic_results);
 
+    console.log("data1111: ", data.news_results);
+
+    let example;
     if (params.engine == "google") {
-      example = data.news_results?.slice(
-        0,
-        Math.min(2, data.news_results?.length)
-      );
+      example = data.news_results;
     } else {
-      example = data.organic_results?.slice(
-        0,
-        Math.min(2, data.organic_results?.length)
-      );
+      example = data.organic_results;
     }
 
     console.log("example: ", example);
 
+    // Fetch and save articles using Promise.allSettled for parallel processing
     let response = await fetchAndSaveArticles(example);
     console.log("response: ", response);
+
     return response;
   } catch (error) {
     console.error("Error fetching news:", error.message);
@@ -102,21 +98,35 @@ async function fetchArticleContent(url) {
  */
 async function fetchAndSaveArticles(articles) {
   console.log("articles: ", articles);
-  const results = [];
 
-  for (const article of articles) {
-    console.log("article: ", article);
+  // Use Promise.allSettled for parallel processing of articles
+  const fetchPromises = articles.map((article) => {
     const { link } = article;
-    const data = await fetchArticleContent(link);
-    console.log("dataaadfdfsd: ", data);
+    return fetchArticleContent(link)
+      .then((data) => ({
+        status: 'fulfilled',
+        value: data,
+      }))
+      .catch((error) => ({
+        status: 'rejected',
+        reason: error.message,
+      }));
+  });
 
-    results.push(data);
-  }
-  return results;
-  console.log("results: ", results);
-  const filePath = "./articles.json";
-  fs.writeFileSync(filePath, JSON.stringify(results, null, 2), "utf8");
-  console.log(`Articles saved to ${filePath}`);
+  // Wait for all fetch operations to settle (both fulfilled and rejected)
+  let results = await Promise.allSettled(fetchPromises);
+
+  // Handle the settled results
+  const successfulResults = results.filter(result => result.status === 'fulfilled').map(result => result.value);
+  const failedResults = results.filter(result => result.status === 'rejected').map(result => result.reason);
+
+  console.log("successful results: ", successfulResults);
+  console.log("failed results: ", failedResults);
+
+  // Optionally, save the successful results to a file
+
+
+  return successfulResults;
 }
 
 /**
