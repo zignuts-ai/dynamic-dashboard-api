@@ -23,6 +23,8 @@
   "Admin": {
     "Auth": {
       "InvalidCredential": "email or password is wrong",
+      "userAlreadyExsits": "The user already exists with this email address.",
+      "SignupSuccess":"Signup successfully",
       "NotActive": "Admin is not active",
       "NotFound": "Admin not found",
       "Login": "Admin logged in",

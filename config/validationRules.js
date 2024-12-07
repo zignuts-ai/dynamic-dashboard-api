@@ -4,6 +4,8 @@ const passwordRegex =
 const VALIDATION_RULES = {
   USERS: {
     ID: 'required|string',
+    NAME: 'required|string',
+    ROLE: 'required|string',
     EMAIL: 'required|string|email',
     COUNTRY_CODE: 'required|string',
     PHONE: 'required|string',
