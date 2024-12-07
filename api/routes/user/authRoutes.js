@@ -15,7 +15,7 @@ router.post('/signup', UserAuthController.signup);
 router.post('/forgot/password', UserAuthController.forgotPassword);
 router.post('/reset/password', UserAuthController.resetPassword);
 router.post('/check/token', UserAuthController.checkToken);
-router.post('/logout', [isUser], UserAuthController.logout);
+router.post('/logout', UserAuthController.logout);
 
 // Export routes
 module.exports = router;
