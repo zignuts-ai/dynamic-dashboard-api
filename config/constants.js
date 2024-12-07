@@ -138,6 +138,8 @@ const DEVICE_TYPE = {
 
 const USER_ROLES = {
   OWNER: 'owner',
+  ADMIN: 'admin',
+  USER: 'user'
 };
 
 // Export constants
