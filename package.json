@@ -33,8 +33,10 @@
     "serpapi": "^2.1.0",
     "sharp": "^0.32.6",
     "socket.io": "^4.8.1",
+    "undici": "^7.1.0",
     "uuid": "^8.3.2",
-    "validatorjs": "^3.22.1"
+    "validatorjs": "^3.22.1",
+    "web-streams-polyfill": "^4.0.0"
   },
   "devDependencies": {
     "eslint": "^9.7.0"

@@ -12,10 +12,13 @@ const FS = require("fs");
 const UTIL = require("util");
 const MULTER = require("multer");
 const SHARP = require("sharp");
+const axios = require("axios");
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+const RUNWAY_API_KEY = process.env.RUN_WAY_API_KEY;
+const RUNWAY_API_URL = "https://api.runwayml.com/v1/video";
 
 const DRIVERS = {
   STORAGE: {
@@ -184,4 +187,7 @@ module.exports = {
   DEVICE_TYPE,
   USER_ROLES,
   openai,
+  RUNWAY_API_KEY,
+  RUNWAY_API_URL,
+  axios,
 };
