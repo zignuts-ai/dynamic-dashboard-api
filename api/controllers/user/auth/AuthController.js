@@ -9,7 +9,7 @@ const {
   SQS_EVENTS,
 } = require('../../../../config/constants');
 const { VALIDATION_RULES } = require('../../../../config/validationRules');
-const { generateToken } = require('../../../helpers/auth/generateToken');
+const { generateToken, extractDetailsFromToken } = require('../../../helpers/auth/generateToken');
 const {
   processMailMsgs,
 } = require('../../../helpers/mail/processMailMessages');
@@ -59,10 +59,10 @@ module.exports = {
       let user = await User.findOne({
         where: {
           email: email.toLowerCase(),
-          role: USER_ROLES.OWNER,
+          // role: USER_ROLES.OWNER,
           isDeleted: false,
         },
-        attributes: ['id', 'password', 'isActive'],
+        // attributes: ['id', 'password', 'isActive'],
       });
 
       /* This code block is checking if the user is found in the database or not. If the user is not
@@ -631,22 +631,49 @@ module.exports = {
    */
   logout: async (req, res) => {
     try {
-      //update token values to null in user's data
-      await User.update(
-        {
-          token: null,
-          lastLogoutAt: Math.floor(Date.now() / 1000),
-        },
-        {
-          where: {
-            id: req.me.id,
-            isDeleted: false,
-            isActive: true,
-          },
-        }
-      );
+      // Extract token from headers
+      const token = req.headers.me;
+      // Check if token exists
+      if (!token) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: req.__('User.Auth.TokenNotFound'),
+          data: '',
+          error: 'Token is missing',
+        });
+      }
 
-      //return response
+      // Decode the token to get user information (in this case, user ID)
+      let decoded;
+      try {
+        decoded = await extractDetailsFromToken(token);
+      } catch (err) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: req.__('User.Auth.TokenExpired'),
+          data: '',
+          error: 'Invalid token',
+        });
+      }
+
+      const userId = decoded.id;
+
+      // Find the user and invalidate the token or update the session status
+      let user = await User.findOne({ where: { id: userId, isDeleted: false } });
+
+      if (!user) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: req.__('User.Auth.NotFound'),
+          data: '',
+          error: '',
+        });
+      }
+
+      // Update the user record to clear the token or mark session as invalid
+      await user.update({ token: null });
+
+      // Return success response
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: req.__('User.Auth.Logout'),

@@ -1,107 +1,86 @@
 const { HTTP_STATUS_CODE, JWT, USER_ROLES } = require('../../config/constants');
 const { User } = require('../models');
 
-module.exports.isUser = async (req, res, next) => {
+module.exports.checkUserOrGuest = async (req, res, next) => {
   try {
-    //getting authToken from headers
-    let authToken = req.headers['authorization'];
+    // Getting authToken from headers for both logged-in user and guest user
+    let authToken = req.headers['authorization'] || req.headers['auth_token'];
 
-    //check if authToken starts with Bearer, fetch the token or return error
-    if (authToken && authToken.startsWith('Bearer ')) {
-      //if token start with Bearer
-      authToken = authToken.split(' ')[1];
-    } else {
-      //if token is not provided then send validation response
+    if (!authToken) {
       return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
         status: HTTP_STATUS_CODE.UNAUTHORIZED,
-        errorCode: '',
         message: req.__('User.Auth.TokenNotFound'),
-        data: '',
-        error: '',
       });
     }
 
-    //verify jwt token based on jwt key
-    let decodedToken = await JWT.verify(authToken, process.env.JWT_KEY);
+    // Check if the token starts with Bearer, and extract the token value
+    if (authToken.startsWith('Bearer ')) {
+      authToken = authToken.split(' ')[1];
+    } else {
+      return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
+        status: HTTP_STATUS_CODE.UNAUTHORIZED,
+        message: req.__('User.Auth.TokenNotFound'),
+      });
+    }
 
-    //check for decodedToken expiry
-    if (
-      decodedToken &&
-      decodedToken.exp &&
-      decodedToken.exp > Math.floor(Date.now() / 1000)
-    ) {
-      if (decodedToken.id) {
+    // First, try to verify as a logged-in user with the user token
+    try {
+      let decodedToken = await JWT.verify(authToken, process.env.JWT_KEY);
+      
+      // If the decoded token is valid for the user, check the database
+      if (decodedToken && decodedToken.id) {
         let user = await User.findOne({
           where: {
             id: decodedToken.id,
-            role: USER_ROLES.OWNER,
+            // role: USER_ROLES.OWNER,
             isDeleted: false,
           },
           attributes: ['id', 'email', 'name', 'token'],
         });
 
-        if (!user) {
-          //if user is not found in database then send validation response
+        if (!user || user.token !== authToken) {
           return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
             status: HTTP_STATUS_CODE.UNAUTHORIZED,
-            errorCode: '',
             message: req.__('User.Auth.Invalid'),
-            data: '',
-            error: '',
-          });
-        }
-
-        /* checks token from header with current token stored in database for that user
-          if that doesn't matches then send validation response */
-        if (user.token !== authToken) {
-          return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
-            status: HTTP_STATUS_CODE.UNAUTHORIZED,
-            errorCode: '',
-            message: req.__('User.Auth.TokenMismatch'),
-            data: '',
-            error: '',
           });
         }
 
         req.me = user;
-        next();
-      } else {
-        return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
-          status: HTTP_STATUS_CODE.UNAUTHORIZED,
-          errorCode: '',
-          message: req.__('User.Auth.Invalid'),
-          data: '',
-          error: '',
-        });
+        return next(); // If logged-in user is valid, proceed with the request
       }
-    } else {
+    } catch (userTokenError) {
+      // If the user's token is invalid or expired, move to guest token check
+    }
+
+    // If the user token verification fails, check if it's a valid guest token
+    try {
+      let decodedToken = await JWT.verify(authToken, process.env.JWT_GUEST_SECRET);
+
+      // If the decoded token is valid for the guest user, allow access
+      if (  decodedToken &&
+        decodedToken.exp &&
+        decodedToken.exp > Math.floor(Date.now() / 1000)) {
+        req.me = decodedToken; // Attach decoded guest token
+        return next(); // Proceed with guest access
+      }
+    } catch (guestTokenError) {
+      // If guest token is invalid or expired, throw an error
       return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
         status: HTTP_STATUS_CODE.UNAUTHORIZED,
-        errorCode: '',
         message: req.__('User.Auth.TokenExpired'),
-        data: '',
-        error: '',
       });
     }
+
+    // If neither user nor guest token is valid
+    return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
+      status: HTTP_STATUS_CODE.UNAUTHORIZED,
+      message: req.__('User.Auth.Invalid'),
+    });
+
   } catch (error) {
-    //if error is of jwt token expire then send validation response with errorcode 'AUTH004'
-    if (error instanceof JWT.TokenExpiredError) {
-      return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
-        status: HTTP_STATUS_CODE.UNAUTHORIZED,
-        errorCode: '',
-        message: req.__('User.Auth.TokenExpired'),
-        data: '',
-        error: '',
-      });
-    } else {
-      //send server error response
-      return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
-        status: HTTP_STATUS_CODE.SERVER_ERROR,
-        errorCode: '',
-        message: '',
-        data: '',
-        error: error.message,
-      });
-    }
+    return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+      status: HTTP_STATUS_CODE.SERVER_ERROR,
+      message: error.message,
+    });
   }
 };
