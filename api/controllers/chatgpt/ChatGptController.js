@@ -121,7 +121,7 @@ module.exports = {
       const prompt = req.query.prompt; // Get query from the URL (e.g., /generate-keywords?query=latest news)
       console.log("prompt: ", prompt);
 
-      if (!query) {
+      if (!prompt) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
           message: "Please provide a query parameter.",
@@ -130,7 +130,8 @@ module.exports = {
         });
       }
 
-      const keywords = await generateKeywords(query);
+      const keywords = await generateKeywords(prompt);
+      console.log('keywords: ', keywords);
 
       if (!keywords) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
@@ -141,10 +142,12 @@ module.exports = {
         });
       }
 
-      const getNewssss = await getNews({
+      const news = await getNews({
         search: keywords,
       });
-      const news = getNewssss.articles;
+     
+    
+      console.log('news: ', news);
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: "",
