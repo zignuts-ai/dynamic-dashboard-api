@@ -11,6 +11,7 @@ const UserAuthController = require('../../controllers/user/auth/AuthController')
 
 // Routes for controllers
 router.post('/login', UserAuthController.login);
+router.post('/signup', UserAuthController.signup);
 router.post('/forgot/password', UserAuthController.forgotPassword);
 router.post('/reset/password', UserAuthController.resetPassword);
 router.post('/check/token', UserAuthController.checkToken);

@@ -136,6 +136,127 @@ module.exports = {
       });
     }
   },
+  /**
+   * @name signup
+   * @file AuthController.js
+   * @param {Request} req
+   * @param {Response} res
+   * @throwsF
+   * @description User signup
+   * @author Jainam Shah (Zignuts)
+   */
+  signup: async (req, res) => {
+    try {
+      // Get data from request body
+      const { name, email, password, role, organization } = req.body;
+
+      // Define validation rules for email, name, password, and role
+      let validationObject = {
+        email: VALIDATION_RULES.USERS.EMAIL,
+        name: VALIDATION_RULES.USERS.NAME,
+        password: VALIDATION_RULES.USERS.PASSWORD,
+        // role: VALIDATION_RULES.USERS.ROLE, 
+      };
+
+      let validationData = {
+        name,
+        email,
+        password,
+        // role,
+      };
+
+      // Perform validation
+      let validation = new VALIDATOR(validationData, validationObject);
+      if (validation.fails()) {
+        // Return validation errors if any rule is violated
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: 'Validation error',
+          data: '',
+          error: validation.errors.all(),
+        });
+      }
+
+      // Check if a user already exists with the provided email
+      let user = await User.findOne({
+        where: {
+          email: email.toLowerCase(),
+          isDeleted: false, // Ensure user is not deleted
+        },
+      });
+
+      if (user) {
+        // If the user already exists, return an error
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: req.__('User.Auth.EmailAlreadyInUse'), // Modify this message if needed
+          data: '',
+          error: '',
+        });
+      }
+
+      // Hash the password before saving to the database
+      const hashedPassword = await BCRYPT.hash(password, 10); // Adjust the salt rounds as necessary
+
+      const id = UUID();
+      // Create a new user in the database
+      let newUser = await User.create({
+        id: id,
+        name,
+        email: email.toLowerCase(),
+        password: hashedPassword,
+        role: USER_ROLES.ADMIN,
+        organization,
+        createdBy: id,
+        updatedBy: id,
+        createdAt: Math.floor(Date.now() / 1000),
+        isActive: true, // Set default status for new users
+      });
+
+      // Prepare the payload for the JWT token
+      const payload = {
+        id: newUser.id,
+        email: email.toLowerCase(),
+        name: newUser.name,
+        role: newUser.role,
+      };
+
+      // Generate access and refresh tokens
+      const token = await generateToken(payload, TOKEN_EXPIRY.USER_ACCESS_TOKEN);
+      console.log('token: ', token);
+
+
+      // Update the new user's token and other necessary fields (e.g., last login timestamp)
+      const updatedUserData = {
+        token,
+        lastLoginAt: Math.floor(Date.now() / 1000),
+        createdBy: newUser.id,
+        updatedBy: newUser.id,
+        updatedAt: Math.floor(Date.now() / 1000)
+
+      }
+
+      await newUser.update({ ...updatedUserData, lastLoginAt: Math.floor(Date.now() / 1000) });
+
+      // Return success response with the user data and token
+      return res.status(HTTP_STATUS_CODE.OK).json({
+        status: HTTP_STATUS_CODE.OK,
+        message: req.__('User.Auth.SignupSuccess'), // Modify this message if needed
+        data: { user: payload, token },
+        error: '',
+      });
+    } catch (error) {
+      console.log('error: ', error);
+      // Return error response if any exception occurs
+      return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+        status: HTTP_STATUS_CODE.SERVER_ERROR,
+        message: '',
+        data: '',
+        error: error.message,
+      });
+    }
+  },
+
 
   /**
    * @name forgotPassword
