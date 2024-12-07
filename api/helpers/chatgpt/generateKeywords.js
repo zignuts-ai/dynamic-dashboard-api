@@ -1,11 +1,6 @@
+const { openai } = require("../../../config/constants");
+
 // gptHelper.js
-require("dotenv").config();
-const { OpenAI } = require("openai");
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 async function generateKeywords(query) {
   try {
     const response = await openai.chat.completions.create({
