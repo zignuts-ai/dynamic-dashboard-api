@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 
 // Policies
 // const { isUser } = require('../../policies/isUser');
@@ -6,14 +6,12 @@ const express = require('express');
 // Routes
 const router = express.Router();
 
-
-
 // Controllers
-const ChatGptController = require('../../controllers/chatgpt/ChatGptController');
+const ChatGptController = require("../../controllers/chatgpt/ChatGptController");
 
 // Routes for controllers
-router.get("/getKeywords",  ChatGptController.getKeywords);
-
+router.get("/getKeywords", ChatGptController.getKeywords);
+router.get("/getRecentNews", ChatGptController.getRecentNews);
 
 // Export routes
 module.exports = router;

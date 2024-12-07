@@ -8,7 +8,8 @@ const {
   UUID,
   PAGE_NAMES,
   SQS_EVENTS,
-} = require('../../../config/constants');
+} = require("../../../config/constants");
+const { getNews } = require("../../helpers/news/getNewsHelper");
 module.exports = {
   /**
    * @name generateKeywords
@@ -20,81 +21,84 @@ module.exports = {
    * @author Jainam Shah (Zignuts)
    */
   getKeywords: async (req, res) => {
-
     try {
       const prompt = req.query.prompt; // Get query from the URL (e.g., /generate-keywords?query=latest news)
-    console.log('query: ', prompt);
+      console.log("query: ", prompt);
 
-    if (!prompt) {
-      return res
-        .status(HTTP_STATUS_CODE.BAD_REQUEST)
-        .json({
+      if (!prompt) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Please provide a query parameter.',
-          data: '',
-          error: '',
+          message: "Please provide a query parameter.",
+          data: "",
+          error: "",
         });
-    }
+      }
 
-    const keywords = await generateKeywords(prompt);
+      const keywords = await generateKeywords(prompt);
 
-    if (keywords) {
-      return res.status(HTTP_STATUS_CODE.OK).json({ keywords });
-    } else {
-      return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
-        status: HTTP_STATUS_CODE.BAD_REQUEST,
-        message: 'Failed to generate keywords',
-        data: '',
-        error: '',
-      });
-    }
+      if (keywords) {
+        return res.status(HTTP_STATUS_CODE.OK).json({ keywords });
+      } else {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "Failed to generate keywords",
+          data: "",
+          error: "",
+        });
+      }
     } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
-    
   },
-  getRecentNews:  async (req, res) => {
+  getRecentNews: async (req, res) => {
     try {
       const prompt = req.query.prompt; // Get query from the URL (e.g., /generate-keywords?query=latest news)
-    console.log('query: ', prompt);
+      console.log("prompt: ", prompt);
 
-    if (!query) {
-      return res
-        .status(HTTP_STATUS_CODE.BAD_REQUEST)
-        .json({
+      if (!query) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Please provide a query parameter.',
-          data: '',
-          error: '',
+          message: "Please provide a query parameter.",
+          data: "",
+          error: "",
         });
-    }
+      }
 
-    const keywords = await generateKeywords(query);
-    
-    if (!keywords) {
-      return res.status(500).json({ error: "Failed to generate keywords." });
-    }
+      const keywords = await generateKeywords(query);
 
-    const getNews = await getNews({})
+      if (!keywords) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "Failed to generate keywords",
+          data: "",
+          error: "",
+        });
+      }
 
-    
-  
-   } catch (error) {
+      const getNewssss = await getNews({
+        search: keywords,
+      });
+      const news = getNewssss.articles;
+      return res.status(HTTP_STATUS_CODE.OK).json({
+        status: HTTP_STATUS_CODE.OK,
+        message: "",
+        data: news,
+        error: "",
+      });
+    } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
-  }
-    
+  },
 };
-
