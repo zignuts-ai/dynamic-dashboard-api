@@ -1,6 +1,6 @@
 // gptHelper.js
 
-const { openai, CONTENT_TYPES } = require("../../../config/constants");
+const { openai } = require("../../../config/constants");
 
 async function imageGeneration({ prompt, size = "1024x1024" }) {
   console.log("prompt: ", prompt);

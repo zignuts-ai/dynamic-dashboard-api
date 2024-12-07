@@ -13,6 +13,8 @@ const ChatGptController = require("../../controllers/chatgpt/ChatGptController")
 router.get("/getKeywords", ChatGptController.getKeywords);
 router.get("/getRecentNews", ChatGptController.getRecentNews);
 router.post("/getArticlesSummarizer", ChatGptController.getArticlesSummery);
+router.post("/generateImage", ChatGptController.generateImage);
+router.post("/generateVideo", ChatGptController.generateVideo);
 
 // Export routes
 module.exports = router;
