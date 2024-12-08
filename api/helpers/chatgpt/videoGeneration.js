@@ -1,27 +1,20 @@
 // gptHelper.js
 
-const {
-  RUNWAY_API_URL,
-  RUNWAY_API_KEY,
-  axios,
-} = require("../../../config/constants");
+const { replicate } = require("../../../config/constants");
 
 async function videoGeneration({ prompt }) {
-  console.log("prompt: ", prompt);
   try {
-    const response = await axios.post(
-      RUNWAY_API_URL,
+    const inputPrompt = {
+      fps: 24,
+      prompt,
+      num_frames: 121,
+      guidance_scale: 5.5,
+      num_inference_steps: 30,
+    };
+    const response = await replicate.run(
+      "lucataco/mochi-1:1944af04d098ef69bed7f9d335d102e652203f268ec4aaa2d836f6217217e460",
       {
-        promptText: prompt, // The text prompt for video generation
-        duration: 5, // Duration in seconds (if supported)
-        resolution: "720p", // Desired resolution
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${RUNWAY_API_KEY}`,
-          "Content-Type": "application/json",
-          "X-Runway-Version": "2024-11-06",
-        },
+        input: inputPrompt,
       }
     );
 
