@@ -5,7 +5,7 @@ async function groqTextToText(messageData) {
     // Format messageData as required by GROQ
     const payload = {
       messages: messageData,
-      model: "llama3-8b-8192",
+      model: "llama-3.3-70b-versatile",
     };
 
     // Send request to GROQ API

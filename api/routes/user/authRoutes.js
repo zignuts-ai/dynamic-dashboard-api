@@ -1,7 +1,7 @@
 const express = require('express');
 
 // Policies
-const { checkUserOrGuest } = require('../../policies/isUser');
+const {  isUser } = require('../../policies/isUser');
 
 // Routes
 const router = express.Router();
@@ -15,7 +15,7 @@ router.post('/signup', UserAuthController.signup);
 router.post('/forgot/password', UserAuthController.forgotPassword);
 router.post('/reset/password', UserAuthController.resetPassword);
 router.post('/check/token', UserAuthController.checkToken);
-router.post('/logout', [checkUserOrGuest], UserAuthController.logout);
+router.post('/logout', [isUser], UserAuthController.logout);
 
 // Export routes
 module.exports = router;

@@ -17,7 +17,6 @@ async function deleteMessage(id) {
     // Delete the message
     await Message.destroy({ where: { id } });
 
-    console.log(`Message with ID ${id} deleted successfully.`);
     return `Message with ID ${id} has been deleted successfully.`;
   } catch (error) {
     console.error('Error deleting message:', error.message);

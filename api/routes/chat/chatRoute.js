@@ -8,9 +8,10 @@ const router = express.Router();
 
 // Controllers
 const ChatController = require("../../controllers/chat/ChatController");
+const { isGuestUser } = require("../../policies/isGuestUser");
 
 // Routes for controllers
-router.get("/create", ChatController.create);
+router.post("/create",[isGuestUser], ChatController.create);
 
 // Export routes
 module.exports = router;
