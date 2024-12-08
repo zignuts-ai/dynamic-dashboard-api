@@ -17,7 +17,6 @@ module.exports = {
       const { user } = req ?? {};
       const { message, sessionId, type } = req.body;
       const userId = user?.id || sessionId;
-      console.log("userId: ", userId);
       const id = UUID();
       const response = await Message.create({
         id,

@@ -3,7 +3,6 @@ const { sequelize } = require("../../config/sequelize");
 const { models } = require("../../config/models");
 const User = require("./User");
 const Session = require("./Session");
-const { CONTENT_TYPES, MESSAGE_ROLE_TYPES } = require("../../config/constants");
 
 const Message = sequelize.define(
   "Message",
@@ -25,13 +24,13 @@ const Message = sequelize.define(
       allowNull: true,
     },
     // sessionId: {
-    //   type: DataTypes.STRING(40), 
+    //   type: DataTypes.STRING(40),
     //   references: {
     //     model: Session,
-    //     key: 'id', 
+    //     key: 'id',
     //   },
     //   allowNull: false,
-    //   field: 'sessionId', 
+    //   field: 'sessionId',
     // },
     sessionId: {
       type: DataTypes.STRING(40),
