@@ -25,8 +25,6 @@ async function videoGeneration({ prompt }) {
       }
     );
 
-    console.log("response: ", response);
-
     // Assuming the API returns a file buffer
     const fileBuffer = response; // Adjust if the actual data structure is different
 
@@ -40,11 +38,9 @@ async function videoGeneration({ prompt }) {
 
     // Write the buffer to the file
     await writeFile(outputPath, fileBuffer);
-    console.log(`Video saved to: ${outputPath}`);
 
     // Construct the public URL
     const filePublicUrl = `${BACK_END_BASE_URL}/generatedVideo/${fileName}`;
-    console.log("filePublicUrl: ", filePublicUrl);
     return filePublicUrl;
   } catch (error) {
     console.error(

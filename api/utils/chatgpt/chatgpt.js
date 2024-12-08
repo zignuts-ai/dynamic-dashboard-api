@@ -13,7 +13,7 @@ Return the response in following JSON structure only.
  "video_prompt": "...",
  "meme": "...",
  "meme_caption": "..."
-}`
+}`;
 function constructChatGPTMessages({ userPrompt, articles, ...rest }) {
   // Validate inputs
   if (!userPrompt || typeof userPrompt !== "string") {
@@ -28,8 +28,7 @@ function constructChatGPTMessages({ userPrompt, articles, ...rest }) {
   // System message to set context
   const systemMessage = {
     role: "system",
-    content:
-    systemPrompt
+    content: systemPrompt,
   };
 
   // User message with context and articles

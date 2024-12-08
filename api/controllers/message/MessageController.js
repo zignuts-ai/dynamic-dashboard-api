@@ -12,7 +12,6 @@ module.exports = {
    * @author Jainam Shah (Zignuts)
    */
   createMessage: async (req, res) => {
-    console.log("createMessage: ");
     try {
       const { user } = req ?? {};
       const { message, sessionId, type } = req.body;
@@ -37,7 +36,6 @@ module.exports = {
         error: "",
       });
     } catch (error) {
-      console.log("error: ", error);
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,

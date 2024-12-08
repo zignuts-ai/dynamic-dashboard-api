@@ -17,9 +17,7 @@ module.exports = {
   getStroage: async (req, res) => {
     try {
       const { filename } = req.params;
-      console.log("filename: ", filename);
       const videoPath = path.join(videosDir, filename);
-      console.log("videoPath: ", videoPath);
 
       // Check if the file exists
       fs.access(videoPath, fs.constants.F_OK, (err) => {

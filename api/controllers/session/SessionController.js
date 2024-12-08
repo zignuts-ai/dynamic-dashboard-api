@@ -26,7 +26,6 @@ module.exports = {
    * @author Jainam Shah (Zignuts)
    */
   createSession: async (req, res) => {
-    console.log("createSession: ");
     try {
       const userId = req.me.id || null;
       const { prompt, sessionId } = req.body;
@@ -95,7 +94,6 @@ module.exports = {
         tone: keywords.tone,
         contentType: keywords.content_type,
       });
-      console.log("summarizeNews: ", summarizeNews);
 
       const aiResponse = await createMessage({
         type: CONTENT_TYPES.TEXT,
@@ -114,7 +112,6 @@ module.exports = {
         error: "",
       });
     } catch (error) {
-      console.log("error: ", error);
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,

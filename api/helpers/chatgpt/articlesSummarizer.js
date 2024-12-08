@@ -2,6 +2,7 @@
 
 const { openai, CONTENT_TYPES } = require("../../../config/constants");
 const { constructChatGPTMessages } = require("../../utils/chatgpt/chatgpt");
+const { groqTextToText } = require("../model/groqTextToText");
 
 async function articlesSummarizer({
   prompt,
@@ -24,9 +25,7 @@ async function articlesSummarizer({
         ...rest,
       });
     }
-    console.log("messages", messages);
     const response = await groqTextToText(messages);
-    console.log("response: ", response);
 
     return response;
   } catch (error) {

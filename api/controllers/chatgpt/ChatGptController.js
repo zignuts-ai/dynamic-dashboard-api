@@ -23,7 +23,6 @@ module.exports = {
   getKeywords: async (req, res) => {
     try {
       const prompt = req.query.prompt; // Get query from the URL (e.g., /generate-keywords?query=latest news)
-      console.log("query: ", prompt);
 
       if (!prompt) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
@@ -59,7 +58,6 @@ module.exports = {
   getRecentNews: async (req, res) => {
     try {
       const prompt = req.query.prompt; // Get query from the URL (e.g., /generate-keywords?query=latest news)
-      console.log("prompt: ", prompt);
 
       if (!prompt) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
@@ -71,7 +69,6 @@ module.exports = {
       }
 
       const keywords = await generateKeywords(prompt);
-      console.log("keywords: ", keywords);
 
       if (!keywords) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
@@ -82,12 +79,10 @@ module.exports = {
         });
       }
 
-
       const news = await getNews({
-        search: keywords.platform +keywords.platform+  keywords.news,
+        search: keywords.platform + keywords.platform + keywords.news,
       });
 
-      console.log("news: ", news);
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: "",
@@ -140,7 +135,6 @@ module.exports = {
   generateImage: async (req, res) => {
     try {
       const { prompt } = req.body;
-      console.log("prompt: ", prompt);
 
       if (!prompt) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
@@ -198,67 +192,67 @@ module.exports = {
   },
   newChat: async (req, res) => {
     try {
-      const userId =  req.me.id;
-      const { prompt, sessionId} = req.body;
-   
+      const userId = req.me.id;
+      const { prompt, sessionId } = req.body;
+
       let validationObject = {
         prompt: VALIDATION_RULES.SESSION.PROMPT,
         sessionId: VALIDATION_RULES.SESSION.SESSIONID,
       };
       let validationData = {
-        prompt, sessionId
+        prompt,
+        sessionId,
       };
 
       let validation = new VALIDATOR(validationData, validationObject);
 
       if (validation.fails()) {
-          //if any rule is violated
-          return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
-            status: HTTP_STATUS_CODE.BAD_REQUEST,
-            message: 'Validation error',
-            data: '',
-            error: validation.errors.all(),
-          });
-        }
-
-        const keywords = await generateKeywords(prompt);
-        console.log('keywords: ', keywords);
-        console.log('keywords.title: ', keywords.title);
-        if(!keywords.title){
-          return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
-            status: HTTP_STATUS_CODE.BAD_REQUEST,
-            message: 'Failed to generate keywords, please try again with proper prompt',
-            data: '',
-            error: '',
-          });
-        }
-  
-    // const id = UUID();
-    // Create a new user in the database
-    let newSession = await Session.create({
-      id: sessionId,
-      prompt: prompt,
-      name: keywords.title,
-      sessionId: sessionId,
-      userId: userId,
-      createdBy: sessionId,
-      updatedBy: sessionId,
-    });
-        // Return success response with the user data and token
-        return res.status(HTTP_STATUS_CODE.OK).json({
-          status: HTTP_STATUS_CODE.OK,
-          message: req.__('Session.Created'), // Modify this message if needed
-          data: newSession,
-          error: '',
+        //if any rule is violated
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "Validation error",
+          data: "",
+          error: validation.errors.all(),
         });
-  } catch (error) {
-    //return error response
-    return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
-      status: HTTP_STATUS_CODE.SERVER_ERROR,
-      message: "",
-      data: "",
-      error: error.message,
-    });
-  }
+      }
+
+      const keywords = await generateKeywords(prompt);
+      if (!keywords.title) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message:
+            "Failed to generate keywords, please try again with proper prompt",
+          data: "",
+          error: "",
+        });
+      }
+
+      // const id = UUID();
+      // Create a new user in the database
+      let newSession = await Session.create({
+        id: sessionId,
+        prompt: prompt,
+        name: keywords.title,
+        sessionId: sessionId,
+        userId: userId,
+        createdBy: sessionId,
+        updatedBy: sessionId,
+      });
+      // Return success response with the user data and token
+      return res.status(HTTP_STATUS_CODE.OK).json({
+        status: HTTP_STATUS_CODE.OK,
+        message: req.__("Session.Created"), // Modify this message if needed
+        data: newSession,
+        error: "",
+      });
+    } catch (error) {
+      //return error response
+      return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+        status: HTTP_STATUS_CODE.SERVER_ERROR,
+        message: "",
+        data: "",
+        error: error.message,
+      });
+    }
   },
 };
