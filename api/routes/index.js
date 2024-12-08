@@ -10,6 +10,7 @@ const ExampleROutes = require("./example");
 const ChatGptRoutes = require("./chatgpt");
 const SessionRoutes = require("./session");
 const StorageRoutes = require("./storage");
+const MessageRoutes = require("./message");
 
 // Use routers
 Router.use("/admin", AdminRoutes);
@@ -18,6 +19,7 @@ Router.use("/example", ExampleROutes);
 Router.use("/chatgpt", ChatGptRoutes);
 Router.use("/session", SessionRoutes);
 Router.use("/generatedVideo", StorageRoutes);
+Router.use("/message", MessageRoutes);
 
 // Export routers
 module.exports = Router;
