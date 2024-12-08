@@ -124,6 +124,14 @@ module.exports = {
   getById: async (req, res) => {
     try {
       const { sessionId } = req.query;
+      if (!sessionId) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "Session id is required",
+          data: "",
+          error: "",
+        });
+      }
       const query = `SELECT
     s.id AS "sessionId",
     s.name,
