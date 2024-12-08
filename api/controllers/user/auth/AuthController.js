@@ -7,13 +7,16 @@ const {
   UUID,
   PAGE_NAMES,
   SQS_EVENTS,
-} = require('../../../../config/constants');
-const { VALIDATION_RULES } = require('../../../../config/validationRules');
-const { generateToken, extractDetailsFromToken } = require('../../../helpers/auth/generateToken');
+} = require("../../../../config/constants");
+const { VALIDATION_RULES } = require("../../../../config/validationRules");
+const {
+  generateToken,
+  extractDetailsFromToken,
+} = require("../../../helpers/auth/generateToken");
 const {
   processMailMsgs,
-} = require('../../../helpers/mail/processMailMessages');
-const { User } = require('../../../models');
+} = require("../../../helpers/mail/processMailMessages");
+const { User } = require("../../../models");
 
 module.exports = {
   /**
@@ -48,8 +51,8 @@ module.exports = {
         //if any rule is violated
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Validation error',
-          data: '',
+          message: "Validation error",
+          data: "",
           error: validation.errors.all(),
         });
       }
@@ -70,9 +73,9 @@ module.exports = {
       if (!user) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.InvalidCredential'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.InvalidCredential"),
+          data: "",
+          error: "",
         });
       }
 
@@ -80,9 +83,9 @@ module.exports = {
       if (!user.isActive) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.NotActive'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.NotActive"),
+          data: "",
+          error: "",
         });
       }
 
@@ -96,9 +99,9 @@ module.exports = {
       if (!comparePassword) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.InvalidCredential'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.InvalidCredential"),
+          data: "",
+          error: "",
         });
       }
 
@@ -122,16 +125,16 @@ module.exports = {
       //return response
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
-        message: req.__('User.Auth.Login'),
+        message: req.__("User.Auth.Login"),
         data: { user: payload, token },
-        error: '',
+        error: "",
       });
     } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
@@ -155,7 +158,7 @@ module.exports = {
         email: VALIDATION_RULES.USERS.EMAIL,
         name: VALIDATION_RULES.USERS.NAME,
         password: VALIDATION_RULES.USERS.PASSWORD,
-        // role: VALIDATION_RULES.USERS.ROLE, 
+        // role: VALIDATION_RULES.USERS.ROLE,
       };
 
       let validationData = {
@@ -171,8 +174,8 @@ module.exports = {
         // Return validation errors if any rule is violated
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Validation error',
-          data: '',
+          message: "Validation error",
+          data: "",
           error: validation.errors.all(),
         });
       }
@@ -189,9 +192,9 @@ module.exports = {
         // If the user already exists, return an error
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.EmailAlreadyInUse'), // Modify this message if needed
-          data: '',
-          error: '',
+          message: req.__("User.Auth.EmailAlreadyInUse"), // Modify this message if needed
+          data: "",
+          error: "",
         });
       }
 
@@ -222,9 +225,10 @@ module.exports = {
       };
 
       // Generate access and refresh tokens
-      const token = await generateToken(payload, TOKEN_EXPIRY.USER_ACCESS_TOKEN);
-      console.log('token: ', token);
-
+      const token = await generateToken(
+        payload,
+        TOKEN_EXPIRY.USER_ACCESS_TOKEN
+      );
 
       // Update the new user's token and other necessary fields (e.g., last login timestamp)
       const updatedUserData = {
@@ -232,31 +236,32 @@ module.exports = {
         lastLoginAt: Math.floor(Date.now() / 1000),
         createdBy: newUser.id,
         updatedBy: newUser.id,
-        updatedAt: Math.floor(Date.now() / 1000)
+        updatedAt: Math.floor(Date.now() / 1000),
+      };
 
-      }
-
-      await newUser.update({ ...updatedUserData, lastLoginAt: Math.floor(Date.now() / 1000) });
+      await newUser.update({
+        ...updatedUserData,
+        lastLoginAt: Math.floor(Date.now() / 1000),
+      });
 
       // Return success response with the user data and token
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
-        message: req.__('User.Auth.SignupSuccess'), // Modify this message if needed
+        message: req.__("User.Auth.SignupSuccess"), // Modify this message if needed
         data: { user: payload, token },
-        error: '',
+        error: "",
       });
     } catch (error) {
-      console.log('error: ', error);
+      console.log("error: ", error);
       // Return error response if any exception occurs
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
   },
-
 
   /**
    * @name forgotPassword
@@ -291,8 +296,8 @@ module.exports = {
         //if any rule is violated
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Validation error',
-          data: '',
+          message: "Validation error",
+          data: "",
           error: validation.errors.all(),
         });
       }
@@ -305,7 +310,7 @@ module.exports = {
           role: USER_ROLES.OWNER,
           isDeleted: false,
         },
-        attributes: ['id', 'name', 'isActive'],
+        attributes: ["id", "name", "isActive"],
       });
 
       /* This code block is checking if the user is found in the database or not. If the user is not
@@ -313,9 +318,9 @@ module.exports = {
       if (!user) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.NotFound'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.NotFound"),
+          data: "",
+          error: "",
         });
       }
 
@@ -323,9 +328,9 @@ module.exports = {
       if (!user.isActive) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.NotActive'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.NotActive"),
+          data: "",
+          error: "",
         });
       }
 
@@ -363,16 +368,16 @@ module.exports = {
       //return response
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
-        message: req.__('User.Auth.MailSend'),
-        data: '',
-        error: '',
+        message: req.__("User.Auth.MailSend"),
+        data: "",
+        error: "",
       });
     } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
@@ -414,8 +419,8 @@ module.exports = {
         //if any rule is violated
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Validation error',
-          data: '',
+          message: "Validation error",
+          data: "",
           error: validation.errors.all(),
         });
       }
@@ -428,11 +433,11 @@ module.exports = {
           isDeleted: false,
         },
         attributes: [
-          'id',
-          'password',
-          'isActive',
-          'forgotPasswordToken',
-          'forgotPasswordTokenExpiry',
+          "id",
+          "password",
+          "isActive",
+          "forgotPasswordToken",
+          "forgotPasswordTokenExpiry",
         ],
       });
 
@@ -440,9 +445,9 @@ module.exports = {
       if (!user) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.NotFound'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.NotFound"),
+          data: "",
+          error: "",
         });
       }
 
@@ -453,9 +458,9 @@ module.exports = {
       if (comparePassword) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.PasswordMatch'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.PasswordMatch"),
+          data: "",
+          error: "",
         });
       }
 
@@ -463,9 +468,9 @@ module.exports = {
       if (user.forgotPasswordToken !== token) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.InvalidLink'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.InvalidLink"),
+          data: "",
+          error: "",
         });
       }
 
@@ -476,9 +481,9 @@ module.exports = {
       if (forgotPwdTokenExpiry < Date.now()) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.InvalidLink'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.InvalidLink"),
+          data: "",
+          error: "",
         });
       }
 
@@ -496,16 +501,16 @@ module.exports = {
       //return response
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
-        message: req.__('User.Auth.PasswordChange'),
-        data: '',
-        error: '',
+        message: req.__("User.Auth.PasswordChange"),
+        data: "",
+        error: "",
       });
     } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
@@ -548,8 +553,8 @@ module.exports = {
         //if any rule is violated
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: 'Validation error',
-          data: '',
+          message: "Validation error",
+          data: "",
           error: validation.errors.all(),
         });
       }
@@ -562,10 +567,10 @@ module.exports = {
           isDeleted: false,
         },
         attributes: [
-          'id',
-          'isActive',
-          'forgotPasswordToken',
-          'forgotPasswordTokenExpiry',
+          "id",
+          "isActive",
+          "forgotPasswordToken",
+          "forgotPasswordTokenExpiry",
         ],
       });
 
@@ -573,9 +578,9 @@ module.exports = {
       if (!user) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.NotFound'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.NotFound"),
+          data: "",
+          error: "",
         });
       }
 
@@ -583,9 +588,9 @@ module.exports = {
       if (user.forgotPasswordToken !== token) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.InvalidLink'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.InvalidLink"),
+          data: "",
+          error: "",
         });
       }
 
@@ -596,25 +601,25 @@ module.exports = {
       if (forgotPwdTokenExpiry < Date.now()) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.InvalidLink'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.InvalidLink"),
+          data: "",
+          error: "",
         });
       }
 
       //return response
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
-        message: '',
+        message: "",
         data: { expired: false },
-        error: '',
+        error: "",
       });
     } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }
@@ -637,9 +642,9 @@ module.exports = {
       if (!token) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.TokenNotFound'),
-          data: '',
-          error: 'Token is missing',
+          message: req.__("User.Auth.TokenNotFound"),
+          data: "",
+          error: "Token is missing",
         });
       }
 
@@ -650,23 +655,25 @@ module.exports = {
       } catch (err) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.TokenExpired'),
-          data: '',
-          error: 'Invalid token',
+          message: req.__("User.Auth.TokenExpired"),
+          data: "",
+          error: "Invalid token",
         });
       }
 
       const userId = decoded.id;
 
       // Find the user and invalidate the token or update the session status
-      let user = await User.findOne({ where: { id: userId, isDeleted: false } });
+      let user = await User.findOne({
+        where: { id: userId, isDeleted: false },
+      });
 
       if (!user) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message: req.__('User.Auth.NotFound'),
-          data: '',
-          error: '',
+          message: req.__("User.Auth.NotFound"),
+          data: "",
+          error: "",
         });
       }
 
@@ -676,16 +683,16 @@ module.exports = {
       // Return success response
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
-        message: req.__('User.Auth.Logout'),
-        data: '',
-        error: '',
+        message: req.__("User.Auth.Logout"),
+        data: "",
+        error: "",
       });
     } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
-        message: '',
-        data: '',
+        message: "",
+        data: "",
         error: error.message,
       });
     }

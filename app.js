@@ -1,34 +1,34 @@
 try {
   // Load environment variables
-  require('dotenv').config();
+  require("dotenv").config();
 
   // Load modules
-  const express = require('express');
-  const bodyParser = require('body-parser');
-  const CORS = require('cors');
+  const express = require("express");
+  const bodyParser = require("body-parser");
+  const CORS = require("cors");
 
   // Load utilities
-  const { createServer } = require('http');
-  const { I18n } = require('i18n');
+  const { createServer } = require("http");
+  const { I18n } = require("i18n");
 
   // Load routes
-  const router = require('./config/routes');
+  const router = require("./config/routes");
 
   // Load config
-  const { locales, defaultLocale } = require('./config/i18n');
-  const { cors } = require('./config/security');
+  const { locales, defaultLocale } = require("./config/i18n");
+  const { cors } = require("./config/security");
 
   // Load database
-  const { sequelize } = require('./api/models');
-  const { startServer } = require('./api/utils/server');
-  const { initializeRedis } = require('./config/redis');
+  const { sequelize } = require("./api/models");
+  const { startServer } = require("./api/utils/server");
+  const { initializeRedis } = require("./config/redis");
 
-  const { getLanguage } = require('./api/policies/getLanguage');
+  const { getLanguage } = require("./api/policies/getLanguage");
 
   // Load i18n
   const i18n = new I18n({
     locales,
-    directory: __dirname + '/config/locales',
+    directory: __dirname + "/config/locales",
     defaultLocale,
     objectNotation: true,
     updateFiles: false,
@@ -38,8 +38,8 @@ try {
   const app = express();
   const server = createServer(app);
 
-  if (process.env.ENABLE_RATE_LIMIT === 'Y') {
-    const rateLimit = require('express-rate-limit');
+  if (process.env.ENABLE_RATE_LIMIT === "Y") {
+    const rateLimit = require("express-rate-limit");
 
     // Create a rate limiter middleware
     const limiter = rateLimit({
@@ -61,7 +61,7 @@ try {
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
 
-  const fs = require('fs');
+  const fs = require("fs");
 
   // Make directory if it does not exist
   if (
@@ -72,14 +72,14 @@ try {
     });
   }
 
-  if (!fs.existsSync(process.env.STATIC_FOLDER + '/uploads')) {
-    fs.mkdirSync(process.env.STATIC_FOLDER + '/uploads', {
+  if (!fs.existsSync(process.env.STATIC_FOLDER + "/uploads")) {
+    fs.mkdirSync(process.env.STATIC_FOLDER + "/uploads", {
       recursive: true,
     });
   }
 
-  app.use(express.static('public'));
-  app.use('/uploads', express.static(__dirname + '/uploads'));
+  app.use(express.static("public"));
+  app.use("/uploads", express.static(__dirname + "/uploads"));
 
   // Set i18n
   app.use(i18n.init);
@@ -88,13 +88,13 @@ try {
   app.use(getLanguage);
   app.use(router);
 
-  if (process.env.ENABLE_REDIS == 'Y') {
+  if (process.env.ENABLE_REDIS == "Y") {
     initializeRedis()
       .then(() => {
-        console.log('Redis initialized');
+        console.log("Redis initialized");
       })
       .catch((err) => {
-        console.error('Failed to initialize Redis', err);
+        console.error("Failed to initialize Redis", err);
       });
   }
 

@@ -10,8 +10,8 @@
       "NotFound": "User not found",
       "Login": "User logged in",
       "userAlreadyExsits": "The user already exists with this email address.",
-      "SignupSuccess":"Signup successfully",
-      "EmailAlreadyInUse":"Email address already in use",
+      "SignupSuccess": "Signup successfully",
+      "EmailAlreadyInUse": "Email address already in use",
       "MailSend": "Reset password link has been sent to your email",
       "PasswordMatch": "New password must be different from the old one",
       "InvalidLink": "Invalid or expired link",
@@ -27,8 +27,8 @@
     "Auth": {
       "InvalidCredential": "email or password is wrong",
       "userAlreadyExsits": "The user already exists with this email address.",
-      "SignupSuccess":"Signup successfully",
-      "EmailAlreadyInUse":"Email address already in use",
+      "SignupSuccess": "Signup successfully",
+      "EmailAlreadyInUse": "Email address already in use",
       "NotActive": "Admin is not active",
       "NotFound": "Admin not found",
       "Login": "Admin logged in",
@@ -42,5 +42,17 @@
       "TokenMismatch": "Token mismatched",
       "TokenExpired": "Token is expired"
     }
+  },
+  "Session": {
+    "Created": "Session created successfully",
+    "Deleted": "Session deleted successfully",
+    "Updated": "Session updated successfully",
+    "NotFound": "Session not found",
+    "AlreadyExists": "Session already exists",
+    "NotActive": "Session is not active",
+    "Login": "Session logged in",
+    "Logout": "Session Logged out successfully",
+    "TokenNotFound": "Token not found",
+    "Invalid": "Invalid session"
   }
 }

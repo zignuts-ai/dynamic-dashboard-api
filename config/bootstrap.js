@@ -1,6 +1,7 @@
 // const { DRIVERS, FS } = require('./constants');
 
-const { Admin } = require('../api/models');
+const { imageGeneration } = require("../api/helpers/chatgpt/imageGeneration");
+const { Admin } = require("../api/models");
 
 module.exports.bootstrap = async () => {
   // By convention, this is a good place to set up fake data during development.
