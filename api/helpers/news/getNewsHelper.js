@@ -97,16 +97,13 @@ async function fetchArticleContent(url) {
  * @param {Array} articles - Array of articles with metadata from SerpAPI.
  */
 async function fetchAndSaveArticles(articles) {
-  console.log("articles: ", articles);
+  
 
   // Use Promise.allSettled for parallel processing of articles
-  const fetchPromises = articles.map((article) => {
+  const fetchPromises = articles.filter((_,i)=> i ===1).map((article) => {
     const { link } = article;
     return fetchArticleContent(link)
-      .then((data) => ({
-        status: 'fulfilled',
-        value: data,
-      }))
+      .then((data) => (data))
       .catch((error) => ({
         status: 'rejected',
         reason: error.message,
@@ -115,6 +112,7 @@ async function fetchAndSaveArticles(articles) {
 
   // Wait for all fetch operations to settle (both fulfilled and rejected)
   let results = await Promise.allSettled(fetchPromises);
+  console.log('results: ', results);
 
   // Handle the settled results
   const successfulResults = results.filter(result => result.status === 'fulfilled').map(result => result.value);

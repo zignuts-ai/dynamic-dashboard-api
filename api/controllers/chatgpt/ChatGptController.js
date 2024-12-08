@@ -82,8 +82,9 @@ module.exports = {
         });
       }
 
+
       const news = await getNews({
-        search: keywords.news,
+        search: keywords.platform +keywords.platform+  keywords.news,
       });
 
       console.log("news: ", news);
