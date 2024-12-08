@@ -30,6 +30,10 @@ const VALIDATION_RULES = {
     ],
     FORGOT_PWD_TOKEN: 'required|string',
   },
+  SESSION:{
+    PROMPT: 'required|string',
+    SESSIONID: 'required|string',
+  }
 };
 
 module.exports = { VALIDATION_RULES };

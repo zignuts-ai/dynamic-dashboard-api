@@ -20,6 +20,7 @@ const startServer = async (server, sequelize, port) => {
     await sequelize.authenticate();
     console.log('Database connected successfully.');
     // sequelize.sync({ alter: true, force: true });
+    // sequelize.sync({ alter: true });
     // Initialize Cron Jobs
     initializeCronJobs();
 
