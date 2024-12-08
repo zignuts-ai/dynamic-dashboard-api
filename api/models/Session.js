@@ -10,15 +10,31 @@ const Session = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    userId: {
-        type: DataTypes.STRING(40),
-        references: {
-            model: User,
-            key: "id", // Primary key of the User table
-        },
-        allowNull: false,
-        field: "userId",
+    time: {
+      type: DataTypes.BIGINT, 
+      allowNull: true, 
     },
+    userId: {
+      type: DataTypes.STRING(40),
+      allowNull: true, 
+    },
+    sessionId: {
+      type: DataTypes.STRING(40),
+      allowNull: true, 
+    },
+    prompt: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    // userId: {
+    //     type: DataTypes.STRING(40),
+    //     references: {
+    //         model: User,
+    //         key: "id", // Primary key of the User table
+    //     },
+    //     allowNull: false,
+    //     field: "userId",
+    // },
     ...models.defaultAttributes,
   },
   {
@@ -29,7 +45,7 @@ const Session = sequelize.define(
   }
 );
 // Define the association between User and Session
-User.hasMany(Session, { foreignKey: 'userId' });
-Session.belongsTo(User, { foreignKey: 'userId' });
+// User.hasMany(Session, { foreignKey: 'userId' });
+// Session.belongsTo(User, { foreignKey: 'userId' });
 
 module.exports = Session;

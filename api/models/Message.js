@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../../config/sequelize');
+const { models } = require('../../config/models');
 const User = require('./User'); 
 const Session = require('./Session'); 
 
@@ -23,7 +24,7 @@ const Message = sequelize.define(
       allowNull: true,
     },
     sessionId: {
-      type: DataTypes.INTEGER, 
+      type: DataTypes.STRING(40), 
       references: {
         model: Session,
         key: 'id', 
@@ -32,7 +33,7 @@ const Message = sequelize.define(
       field: 'sessionId', 
     },
     userId: {
-      type: DataTypes.INTEGER, 
+      type: DataTypes.STRING(40), 
       references: {
         model: User,
         key: 'id', 
@@ -40,14 +41,7 @@ const Message = sequelize.define(
       allowNull: false,
       field: 'userId', 
     },
-    createdAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    updatedAt: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+    ...models.defaultAttributes,
   },
   {
     tableName: 'messages',
