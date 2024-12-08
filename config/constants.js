@@ -17,13 +17,14 @@ const Replicate = require("replicate");
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
-
+const Groq = require("groq-sdk");
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const RUNWAY_API_KEY = process.env.RUN_WAY_API_KEY;
-const RUNWAY_API_URL = "https://api.runwayml.com/v1/video";
-
+const RUNWAY_API_URL = "https://api.runwayml.com/v3/generate/video";
+const MODAL_TYPE = { CHATGPT: "chatgpt", GROQ: "groq" };
 const DRIVERS = {
   STORAGE: {
     AWS_S3: "s3",
@@ -194,5 +195,7 @@ module.exports = {
   RUNWAY_API_KEY,
   RUNWAY_API_URL,
   axios,
+  groq,
+  MODAL_TYPE,
   replicate,
 };
