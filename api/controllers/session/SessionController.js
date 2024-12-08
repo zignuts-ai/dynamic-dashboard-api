@@ -3,10 +3,15 @@ const {
   CONTENT_TYPES,
   VALIDATOR,
   UUID,
+  MESSAGE_ROLE_TYPES,
 } = require("../../../config/constants");
 const { VALIDATION_RULES } = require("../../../config/validationRules");
+const { articlesSummarizer } = require("../../helpers/chatgpt/articlesSummarizer");
 const { generateKeywords } = require("../../helpers/chatgpt/generateKeywords");
-const { Session } = require("../../models");
+const { createMessage } = require("../../helpers/message/createMessage");
+const { getNews } = require("../../helpers/news/getNewsHelper");
+const { createSession } = require("../../helpers/session/createSession");
+const { Session, Message } = require("../../models");
 
 
 
@@ -23,7 +28,7 @@ module.exports = {
   createSession: async (req, res) => {
     console.log("createSession: ");
     try {
-      const userId = req.me.id;
+      const userId = req.me.id || null;
       const { prompt, sessionId } = req.body;
 
       let validationObject = {
@@ -48,8 +53,6 @@ module.exports = {
           }
 
           const keywords = await generateKeywords(prompt);
-          console.log('keywords: ', keywords);
-          console.log('keywords.title: ', keywords.title);
           if(!keywords.title){
             return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
               status: HTTP_STATUS_CODE.BAD_REQUEST,
@@ -59,25 +62,74 @@ module.exports = {
             });
           }
     
-      // const id = UUID();
-      // Create a new user in the database
-      let newSession = await Session.create({
-        id: sessionId,
-        prompt: prompt,
-        name: keywords.title,
-        sessionId: sessionId,
-        userId: userId,
-        createdBy: sessionId,
-        updatedBy: sessionId,
-      });
+    
+
+      let newSession = await createSession({id: sessionId, prompt, userId:userId|| null, createdBy:userId, updatedBy:userId, name: keywords.title})
+      // id, prompt, userId, createdBy, updatedBy
+
+   
+      // name, type, message, metadata = {}, id, userId
+      let msg = await createMessage({ type: null, message: prompt, metadata:null, userId: userId, sessionId: newSession.id, role: MESSAGE_ROLE_TYPES.USER})
+      
+      const newsData = await getNews({
+        search: keywords.source +  keywords.platform  + keywords.news, 
+        engine: keywords.searchEngine
+      })
+   
+      const summarizeNews = await articlesSummarizer({
+        prompt,
+        // type: CONTENT_TYPES.TEXT,
+        articles: newsData,
+        tone: keywords.tone,
+        contentType: keywords.content_type
+      })
+      console.log('summarizeNews: ', summarizeNews);
+     
+
+
+
+      const aiResponse = await createMessage({type: CONTENT_TYPES.TEXT, role: MESSAGE_ROLE_TYPES.AI, message: summarizeNews.post_content, metadata:null, userId: userId, sessionId: newSession.id})
+   
+
           // Return success response with the user data and token
           return res.status(HTTP_STATUS_CODE.OK).json({
             status: HTTP_STATUS_CODE.OK,
             message: req.__('Session.Created'), // Modify this message if needed
-            data: newSession,
+            data: aiResponse,
             error: '',
           });
     } catch (error) {
+      console.log('error: ', error);
+      //return error response
+      return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+        status: HTTP_STATUS_CODE.SERVER_ERROR,
+        message: "",
+        data: "",
+        error: error.message,
+      });
+    }
+  },
+  getById: async (req, res) => {
+    console.log("createSession: ");
+    try {
+    const { sessionId } = req.query;
+    const session = await Session.findOne({ where: { id: sessionId } });
+    if (!session) {
+      return res.status(HTTP_STATUS_CODE.NOT_FOUND).json({
+        status: HTTP_STATUS_CODE.NOT_FOUND,
+        message: req.__('Session.NotFound'), // Modify this message if needed
+        data: '',
+        error: '',
+      });
+    }
+    return res.status(HTTP_STATUS_CODE.OK).json({
+      status: HTTP_STATUS_CODE.OK,
+      message: req.__('Session.Found'), // Modify this message if needed
+      data: session,
+      error: '',
+    })
+    } catch (error) {
+      console.log('error: ', error);
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,

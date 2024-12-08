@@ -13,16 +13,25 @@ const { UUID } = require('../../../config/constants'); // Import UUID generator 
  * @param {string} messageData.userId - Associated user ID
  * @returns {Object} - The created message object
  */
-async function createMessage({ name, type, message, metadata = {}, id, userId }) {
+async function createMessage({  type, message, metadata = {}, id, userId , role,sessionId}) {
+  console.log('sessionId: ', sessionId);
+  console.log('role: ', role);
+  console.log('userId: ', userId);
+  console.log('id: ', id);
+  console.log('metadata: ', metadata);
+  console.log('message: ', message);
+  console.log('type: ', type);
+  
   try {
     const newMessage = await Message.create({
-      id: UUID, // Generate a unique ID for the message
-      name,
+      id: UUID(), // Generate a unique ID for the message
       type,
       message,
       metadata,
       id,
       userId,
+      role,
+      sessionId
     });
 
     console.log('Message created successfully:', newMessage);

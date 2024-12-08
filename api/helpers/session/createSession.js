@@ -1,6 +1,6 @@
 // Import the Session model
-const { Session } = require('../../models/Session'); // Adjust the path as needed
-const {UUID }  = require("../../../config/constants")// Import UUID generator
+const {UUID }  = require("../../../config/constants");// Import UUID generator
+const { Session } = require("../../models");
 /**
  * Helper function to create a new session
  * @param {Object} sessionData - Data for creating the session
@@ -11,22 +11,24 @@ const {UUID }  = require("../../../config/constants")// Import UUID generator
  * @param {string} sessionData.updatedBy - ID of the updater
  * @returns {Object} - The created session object
  */
-async function createSession({ id, prompt, userId, createdBy, updatedBy }) {
+async function createSession({ id, prompt, userId, createdBy, updatedBy, ...rest }) {
+  console.log('id, prompt, userId,: ', id, prompt, userId,);
   try {
     const newSession = await Session.create({
-      id: id ? id : UUID, // Ensure the ID matches your schema
+      id: id ? id : UUID(), // Ensure the ID matches your schema
       prompt,
-
       userId,
       createdBy,
       updatedBy,
+      updatedAt: Math.floor(Date.now() / 1000),
+      ...rest
     });
 
     console.log('Session created successfully:', newSession);
     return newSession;
   } catch (error) {
-    console.error('Error creating session:', error.message);
-    throw new Error('Unable to create session');
+    console.error('Error creating session:', error);
+    return ;
   }
 }
 

@@ -176,6 +176,11 @@ const CONTENT_TYPES = {
   VIDEO: "video",
   AUDIO: "audio",
 };
+const MESSAGE_ROLE_TYPES = {
+  AI: "ai",
+  USER: "user",
+};
+
 
 //GENERATED VIDEO PATH
 const GENERATED_VIDEO_PATH = process.env.GENERATED_VIDEO_PATH;
@@ -217,4 +222,5 @@ module.exports = {
   replicate,
   BACK_END_BASE_URL,
   GENERATED_VIDEO_PATH,
+  MESSAGE_ROLE_TYPES
 };

@@ -10,10 +10,10 @@ const Session = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
-    time: {
-      type: DataTypes.BIGINT, 
-      allowNull: true, 
-    },
+    // time: {
+    //   type: DataTypes.BIGINT, 
+    //   allowNull: true, 
+    // },
     userId: {
       type: DataTypes.STRING(40),
       allowNull: true, 

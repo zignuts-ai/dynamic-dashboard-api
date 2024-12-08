@@ -15,6 +15,7 @@ router.get("/getRecentNews", ChatGptController.getRecentNews);
 router.post("/getArticlesSummarizer", ChatGptController.getArticlesSummery);
 router.post("/generateImage", ChatGptController.generateImage);
 router.post("/generateVideo", ChatGptController.generateVideo);
+router.post("/newchat", ChatGptController.newChat);
 
 // Export routes
 module.exports = router;

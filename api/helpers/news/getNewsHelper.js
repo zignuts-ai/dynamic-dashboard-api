@@ -17,7 +17,7 @@ async function getNews({
   lang = "en",
   max = "10",
   country = "",
-  engine = "bing",
+  engine = "",
 }) {
   try {
     let params = {
@@ -40,7 +40,6 @@ async function getNews({
         json[params.engine == "google" ? "news_results" : "organic_results"]
     );
 
-    console.log("data1111: ", data.news_results);
 
     let example;
     if (params.engine == "google") {
@@ -49,11 +48,9 @@ async function getNews({
       example = data.organic_results;
     }
 
-    console.log("example: ", example);
 
     // Fetch and save articles using Promise.allSettled for parallel processing
     let response = await fetchAndSaveArticles(example);
-    console.log("response: ", response);
 
     return response;
   } catch (error) {
@@ -100,7 +97,7 @@ async function fetchAndSaveArticles(articles) {
   
 
   // Use Promise.allSettled for parallel processing of articles
-  const fetchPromises = articles.filter((_,i)=> i ===1).map((article) => {
+  const fetchPromises = articles.filter((_,i)=> i <=1).map((article) => {
     const { link } = article;
     return fetchArticleContent(link)
       .then((data) => (data))
@@ -112,14 +109,14 @@ async function fetchAndSaveArticles(articles) {
 
   // Wait for all fetch operations to settle (both fulfilled and rejected)
   let results = await Promise.allSettled(fetchPromises);
-  console.log('results: ', results);
+  // console.log('results: ', results);
 
   // Handle the settled results
   const successfulResults = results.filter(result => result.status === 'fulfilled').map(result => result.value);
   const failedResults = results.filter(result => result.status === 'rejected').map(result => result.reason);
 
-  console.log("successful results: ", successfulResults);
-  console.log("failed results: ", failedResults);
+  // console.log("successful results: ", successfulResults);
+  // console.log("failed results: ", failedResults);
 
   // Optionally, save the successful results to a file
 

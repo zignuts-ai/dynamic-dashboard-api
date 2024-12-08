@@ -19,14 +19,14 @@ module.exports.models = {
     },
     createdBy: {
       type: DataTypes.STRING(40),
-      allowNull: false,
-      field: "created_by",
+      allowNull: true,
+      field: 'created_by',
     },
     updatedAt: {
       type: DataTypes.BIGINT,
-      defaultValue: () => Math.floor(Date.now() / 1000),
       allowNull: true,
-      field: "updated_at",
+      defaultValue: () => Math.floor(Date.now() / 1000),
+      field: 'updated_at',
     },
     updatedBy: {
       type: DataTypes.STRING(40),

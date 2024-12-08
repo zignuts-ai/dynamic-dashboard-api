@@ -34,13 +34,13 @@ Output:
 "search_engine": "",
 "source": ""
 }
-User: Crawl using google to create a post about recent football match of real madrid for a LinkedIn audience referring to news from BBC.
+User: Crawl using google to create a post about recent football match of real madrid for a  audience referring to news from BBC.
 Output: 
 {
 "news": "india-australia-cricket-match",
 "title": "Recent football match of real Madrid"
 "tone": "informative",
-"platform": "linkedin",
+"platform": "",
 "content_type": "text, image",
 "preferences": "not exceeding 160 characters",
 "search_engine": "google",

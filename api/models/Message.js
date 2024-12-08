@@ -3,12 +3,17 @@ const { sequelize } = require("../../config/sequelize");
 const { models } = require("../../config/models");
 const User = require("./User");
 const Session = require("./Session");
+const { CONTENT_TYPES, MESSAGE_ROLE_TYPES } = require("../../config/constants");
 
 const Message = sequelize.define(
   "Message",
   {
     type: {
-      type: DataTypes.ENUM("user_input", "text", "image", "video", "meme"),
+      type: DataTypes.STRING(40),
+      allowNull: true,
+    },
+    role: {
+      type: DataTypes.STRING(40),
       allowNull: true,
     },
     message: {
@@ -19,6 +24,15 @@ const Message = sequelize.define(
       type: DataTypes.JSON,
       allowNull: true,
     },
+    // sessionId: {
+    //   type: DataTypes.STRING(40), 
+    //   references: {
+    //     model: Session,
+    //     key: 'id', 
+    //   },
+    //   allowNull: false,
+    //   field: 'sessionId', 
+    // },
     sessionId: {
       type: DataTypes.STRING(40),
       references: {
