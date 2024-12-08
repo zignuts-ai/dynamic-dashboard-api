@@ -1,19 +1,15 @@
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../../config/sequelize');
-const { models } = require('../../config/models');
-const User = require('./User'); 
-const Session = require('./Session'); 
+const { DataTypes } = require("sequelize");
+const { sequelize } = require("../../config/sequelize");
+const { models } = require("../../config/models");
+const User = require("./User");
+const Session = require("./Session");
 
 const Message = sequelize.define(
-  'Message',
+  "Message",
   {
-    name: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-    },
     type: {
-      type: DataTypes.ENUM('user_input', 'text', 'image', 'video', 'meme'),
-      allowNull: false,
+      type: DataTypes.ENUM("user_input", "text", "image", "video", "meme"),
+      allowNull: true,
     },
     message: {
       type: DataTypes.TEXT,
@@ -24,37 +20,37 @@ const Message = sequelize.define(
       allowNull: true,
     },
     sessionId: {
-      type: DataTypes.STRING(40), 
+      type: DataTypes.STRING(40),
       references: {
         model: Session,
-        key: 'id', 
+        key: "id",
       },
       allowNull: false,
-      field: 'sessionId', 
+      field: "sessionId",
     },
     userId: {
-      type: DataTypes.STRING(40), 
+      type: DataTypes.STRING(40),
       references: {
         model: User,
-        key: 'id', 
+        key: "id",
       },
-      allowNull: false,
-      field: 'userId', 
+      allowNull: true,
+      field: "userId",
     },
     ...models.defaultAttributes,
   },
   {
-    tableName: 'messages',
+    tableName: "messages",
     freezeTableName: true,
     timestamps: true,
   }
 );
 
 // Define relationships
-User.hasMany(Message, { foreignKey: 'userId' }); 
-Message.belongsTo(User, { foreignKey: 'userId' }); 
+User.hasMany(Message, { foreignKey: "userId" });
+Message.belongsTo(User, { foreignKey: "userId" });
 
-Session.hasMany(Message, { foreignKey: 'sessionId' }); 
-Message.belongsTo(Session, { foreignKey: 'sessionId'});
+Session.hasMany(Message, { foreignKey: "sessionId" });
+Message.belongsTo(Session, { foreignKey: "sessionId" });
 
 module.exports = Message;

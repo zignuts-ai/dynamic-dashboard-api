@@ -1,8 +1,8 @@
 // server.js (or your preferred filename for this module)
 
-const { bootstrap } = require('../../config/bootstrap');
-const { connectSocketIO } = require('../helpers/socket/connect');
-const { initializeCronJobs } = require('./initializeCron');
+const { bootstrap } = require("../../config/bootstrap");
+const { connectSocketIO } = require("../helpers/socket/connect");
+const { initializeCronJobs } = require("./initializeCron");
 
 /**
  * Initializes and starts the server, performing necessary setup steps.
@@ -16,10 +16,10 @@ const { initializeCronJobs } = require('./initializeCron');
 const startServer = async (server, sequelize, port) => {
   try {
     // Database Connection and Migration
-    console.log('Connecting to database....');
+    console.log("Connecting to database....");
     await sequelize.authenticate();
-    console.log('Database connected successfully.');
-    // sequelize.sync({ alter: true, force: true });
+    console.log("Database connected successfully.");
+    sequelize.sync({ alter: true, force: true });
     // sequelize.sync({ alter: true });
     // Initialize Cron Jobs
     initializeCronJobs();
@@ -28,14 +28,14 @@ const startServer = async (server, sequelize, port) => {
     await bootstrap();
 
     // Socket IO Setup
-    if (process.env.ENABLE_SOCKETS === 'Y') {
+    if (process.env.ENABLE_SOCKETS === "Y") {
       await connectSocketIO(server); // This function now manages its own startup
     }
 
-    console.log('✅ Server started on port:' + port);
+    console.log("✅ Server started on port:" + port);
   } catch (error) {
     // Handle errors gracefully during startup
-    console.error('❌ Error starting the server:', error);
+    console.error("❌ Error starting the server:", error);
 
     // Exit Process (optional, but often useful for critical startup errors)
     process.exit(1);

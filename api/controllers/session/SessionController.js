@@ -21,20 +21,21 @@ module.exports = {
    * @author Jainam Shah (Zignuts)
    */
   createSession: async (req, res) => {
-    console.log('createSession: ');
+    console.log("createSession: ");
     try {
-        const userId =  req.me.id;
-        const { prompt, sessionId} = req.body;
-     
-        let validationObject = {
-          prompt: VALIDATION_RULES.SESSION.PROMPT,
-          sessionId: VALIDATION_RULES.SESSION.SESSIONID,
-        };
-        let validationData = {
-          prompt, sessionId
-        };
-  
-        let validation = new VALIDATOR(validationData, validationObject);
+      const userId = req.me.id;
+      const { prompt, sessionId } = req.body;
+
+      let validationObject = {
+        prompt: VALIDATION_RULES.SESSION.PROMPT,
+        sessionId: VALIDATION_RULES.SESSION.SESSIONID,
+      };
+      let validationData = {
+        prompt,
+        sessionId,
+      };
+
+      let validation = new VALIDATOR(validationData, validationObject);
 
         if (validation.fails()) {
             //if any rule is violated
@@ -86,5 +87,4 @@ module.exports = {
       });
     }
   },
-
 };
