@@ -13,6 +13,10 @@ const UTIL = require("util");
 const MULTER = require("multer");
 const SHARP = require("sharp");
 const axios = require("axios");
+const Replicate = require("replicate");
+const replicate = new Replicate({
+  auth: process.env.REPLICATE_API_TOKEN,
+});
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -190,4 +194,5 @@ module.exports = {
   RUNWAY_API_KEY,
   RUNWAY_API_URL,
   axios,
+  replicate,
 };

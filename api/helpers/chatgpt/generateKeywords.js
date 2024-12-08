@@ -1,6 +1,7 @@
 const { openai } = require("../../../config/constants");
 
 const systemPrompt = `You are a helpful assistant. Your job is to take user input and detect news keywords, tone, platform name, content type, search engine (if mentioned), news source (if mentioned), other user preferences (if mentioned) of the content to be generated and return a JSON object. The news keywords will be used for fetching relevant news articles and doing further research. If there are multiple news keywords, tone, platforms, content types or other preferences, make them comma-separated. If user does not mention the tone, identify the tone based on the given input. If user does not mention name of the platform, keep it blank. Only choose from the below constraints for tone, platforms and format.
+Title: Generate a short title based on user prompt.
 Tone: [Informative, Educative, Humorous, Funny, Meme, Serious, Professional, Concerning, Exciting]
 Platform: [LinkedIn, Instagram, X, Facebook, Reddit]
 Format: [Text, Image, Video, Meme]
@@ -23,6 +24,7 @@ User: Create an informative post not exceeding 160 characters with image about i
 Output: 
 {
 "news": "india-australia-cricket-match",
+"title": "india-australia cricket match"
 "tone": "informative",
 "platform": "linkedin",
 "content_type": "text, image",
@@ -34,6 +36,7 @@ User: Crawl using google to create a post about recent football match of real ma
 Output: 
 {
 "news": "india-australia-cricket-match",
+"title": "Recent football match of real Madrid"
 "tone": "informative",
 "platform": "linkedin",
 "content_type": "text, image",
