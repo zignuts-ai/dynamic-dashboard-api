@@ -62,6 +62,20 @@ module.exports = {
         });
       }
 
+      const findSession = await Session.findOne({
+        where: {
+          id: sessionId,
+        },
+      });
+      if (findSession) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "Session already exists",
+          data: "",
+          error: "",
+        });
+      }
+
       let newSession = await createSession({
         id: sessionId,
         prompt,
