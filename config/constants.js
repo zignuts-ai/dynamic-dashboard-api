@@ -191,6 +191,6 @@ module.exports = {
   RUNWAY_API_KEY,
   RUNWAY_API_URL,
   axios,
-  groq
+  groq,
   MODAL_TYPE
 };
