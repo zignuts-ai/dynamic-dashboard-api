@@ -45,7 +45,6 @@ Output:
 "search_engine": "google",
 "source": "bbc"
 }
-
 `;
 
 async function generateKeywords(query, type = MODAL_TYPE.CHATGPT) {

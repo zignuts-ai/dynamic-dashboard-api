@@ -13,18 +13,32 @@ const UTIL = require("util");
 const MULTER = require("multer");
 const SHARP = require("sharp");
 const axios = require("axios");
+
+// REPLICATE SETUP
 const Replicate = require("replicate");
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN,
 });
+
+// GROQ SETUP
 const Groq = require("groq-sdk");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+// OPENAI SETUP
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
+
+// RUNWAY SETUP
 const RUNWAY_API_KEY = process.env.RUN_WAY_API_KEY;
 const RUNWAY_API_URL = "https://api.runwayml.com/v3/generate/video";
+
+// MODAL TYPE
 const MODAL_TYPE = { CHATGPT: "chatgpt", GROQ: "groq" };
+
+// BASE URL
+const BACK_END_BASE_URL = process.env.BACK_END_BASE_URL;
+
 const DRIVERS = {
   STORAGE: {
     AWS_S3: "s3",
@@ -163,6 +177,9 @@ const CONTENT_TYPES = {
   AUDIO: "audio",
 };
 
+//GENERATED VIDEO PATH
+const GENERATED_VIDEO_PATH = process.env.GENERATED_VIDEO_PATH;
+
 // Export constants
 module.exports = {
   UUID: uuidv4,
@@ -198,4 +215,6 @@ module.exports = {
   groq,
   MODAL_TYPE,
   replicate,
+  BACK_END_BASE_URL,
+  GENERATED_VIDEO_PATH,
 };
