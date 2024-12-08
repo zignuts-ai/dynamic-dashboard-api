@@ -14,6 +14,7 @@ User: Create a humorous post about AI replacing jobs for a Twitter audience
 Output: 
 {
 "news": "ai-replacing-jobs",
+"title": "Job replacement by AI",
 "tone": "humorous",
 "platform": "twitter",
 "content_type": "text",
@@ -25,7 +26,7 @@ User: Create an informative post not exceeding 160 characters with image about i
 Output: 
 {
 "news": "india-australia-cricket-match",
-"title": "india-australia cricket match"
+"title": "india-australia cricket match",
 "tone": "informative",
 "platform": "linkedin",
 "content_type": "text, image",
@@ -45,10 +46,10 @@ Output:
 "search_engine": "google",
 "source": "bbc"
 }
-
+You must always return the output as a valid JSON object. Only return the JSON object and nothing else.
 `;
 
-async function generateKeywords(query, type = MODAL_TYPE.CHATGPT) {
+async function generateKeywords(query, type = MODAL_TYPE.GROQ) {
   let messageData = [
     {
       role: "system",

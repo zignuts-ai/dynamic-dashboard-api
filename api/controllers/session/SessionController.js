@@ -5,8 +5,8 @@ const {
   UUID,
 } = require("../../../config/constants");
 const { VALIDATION_RULES } = require("../../../config/validationRules");
+const { generateKeywords } = require("../../helpers/chatgpt/generateKeywords");
 const { Session } = require("../../models");
-const { getKeywords } = require("../chatgpt/ChatGptController");
 
 
 
@@ -46,26 +46,34 @@ module.exports = {
             });
           }
 
-
+          const keywords = await generateKeywords(prompt);
+          console.log('keywords: ', keywords);
+          console.log('keywords.title: ', keywords.title);
+          if(!keywords.title){
+            return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+              status: HTTP_STATUS_CODE.BAD_REQUEST,
+              message: 'Failed to generate keywords, please try again with proper prompt',
+              data: '',
+              error: '',
+            });
+          }
     
       // const id = UUID();
       // Create a new user in the database
       let newSession = await Session.create({
         id: sessionId,
         prompt: prompt,
+        name: keywords.title,
         sessionId: sessionId,
         userId: userId,
-        createdBy: id,
-        updatedBy: id,
+        createdBy: sessionId,
+        updatedBy: sessionId,
       });
-
-
-      
           // Return success response with the user data and token
           return res.status(HTTP_STATUS_CODE.OK).json({
             status: HTTP_STATUS_CODE.OK,
             message: req.__('Session.Created'), // Modify this message if needed
-            data: { session: newSession },
+            data: newSession,
             error: '',
           });
     } catch (error) {

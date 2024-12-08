@@ -15,18 +15,17 @@ async function groqTextToText(messageData) {
     const response = await  groq.chat.completions.create(payload);
     
 
-    console.log('response.choices[0].message: ', );
-    let keyword = response.choices[0].message.content
+    
+    let keyword = response.choices[0].message.content;
     try{
         keyword = JSON.parse(keyword)
     } catch(e){
         keyword = response.choices[0].message.content
     }
-
     // Return the response
     return keyword;
   } catch (error) {
-    console.error("Error in GROQ text-to-text:", error.message);
+    
     throw error;
   }
 }
