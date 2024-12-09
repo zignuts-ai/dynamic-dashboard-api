@@ -25,7 +25,6 @@ async function summarizeText(prompt, newsData) {
     content type: ${prompt.contentType || 'text'}
     content: ${newsData[0]?.content}
     `;
-		console.log(userPrompt);
 		let messages = [
 			{
 				role: 'system',
@@ -42,6 +41,7 @@ async function summarizeText(prompt, newsData) {
 		// }
 
 		const response = await groqTextToText(messages);
+		// console.log('response: grok ', response);
 
 		return response;
 	} catch (error) {
