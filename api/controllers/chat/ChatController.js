@@ -4,12 +4,13 @@ const {
   VALIDATOR,
   UUID,
   MESSAGE_ROLE_TYPES,
+  MODAL_TYPE,
 } = require("../../../config/constants");
 const { VALIDATION_RULES } = require("../../../config/validationRules");
 const {
   articlesSummarizer,
 } = require("../../helpers/chatgpt/articlesSummarizer");
-const { generateKeywords } = require("../../helpers/chatgpt/generateKeywords");
+// const { generateKeywords } = require('../../helpers/chatgpt/generateKeywords');
 const { imageGeneration } = require("../../helpers/chatgpt/imageGeneration");
 const { videoGeneration } = require("../../helpers/chatgpt/videoGeneration");
 const { createMessage } = require("../../helpers/message/createMessage");
@@ -17,7 +18,13 @@ const { getNews } = require("../../helpers/news/getNewsHelper");
 const { createSession } = require("../../helpers/session/createSession");
 const { getByIdSession } = require("../../helpers/session/getByIdSession");
 const { updateSession } = require("../../helpers/session/updateSession");
+const { detectUserIntent } = require("../../helpers/agent/detectUserIntent");
+const { generateKeywords } = require("../../helpers/agent/generateKeywords");
+const { generatePost } = require("../../helpers/agent/generatePost");
 const { Session, Message, sequelize } = require("../../models");
+const {
+  generateAllSummaryMessage,
+} = require("../../helpers/agent/generateAllSummaryMessage");
 
 module.exports = {
   /**
@@ -30,8 +37,7 @@ module.exports = {
    * @author Jainam Shah (Zignuts)
    */
   create: async (req, res) => {
-    try { 
- 
+    try {
       const userId = req?.me?.id || null;
       const { prompt, sessionId, platform, postType, tone } = req.body;
 
@@ -84,7 +90,6 @@ module.exports = {
           error: "",
         });
       }
-console.log("keywords",keywords)
       if (!newSession) {
         newSession = await createSession({
           id: sessionId,
@@ -196,6 +201,249 @@ console.log("keywords",keywords)
         status: HTTP_STATUS_CODE.OK,
         message: req.__("Session.Created"), // Modify this message if needed
         data: allMessage,
+        error: "",
+      });
+    } catch (error) {
+      //return error response
+      return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+        status: HTTP_STATUS_CODE.SERVER_ERROR,
+        message: "",
+        data: "",
+        error: error.message,
+      });
+    }
+  },
+  /**
+   * @name chat
+   * @file ChatGptController.js
+   * @param {Request} req
+   * @param {Response} res
+   * @throwsF
+   * @description Chats with the user
+   * @author Parth T. (Zignuts)
+   */
+  chat: async (req, res) => {
+    try {
+      // fetching the required fields from req
+      const userId = req?.me?.id || null;
+      const { prompt, sessionId } = req.body;
+
+      // validating fields
+      let validationObject = {
+        prompt: VALIDATION_RULES.SESSION.PROMPT,
+        sessionId: VALIDATION_RULES.SESSION.SESSIONID,
+      };
+      let validationData = {
+        prompt,
+        sessionId,
+      };
+      let validation = new VALIDATOR(validationData, validationObject);
+
+      if (validation.fails()) {
+        //if any rule is violated
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "Validation error",
+          data: "",
+          error: validation.errors.all(),
+        });
+      }
+
+      // getting the session details. If session does not exist, create a new one.
+      let allPreviousMessage = [];
+      let sendedMessage = [];
+
+      let session = await getByIdSession(sessionId);
+      let getLastUserMessage;
+      if (!session) {
+        session = await createSession({
+          id: sessionId,
+          prompt,
+          userId: userId || null,
+          createdBy: userId || null,
+          updatedBy: userId || null,
+        });
+      } else {
+        const lastMessage = await Message.findAll({
+          where: {
+            sessionId: sessionId,
+            // role: MESSAGE_ROLE_TYPES.USER,
+            type: CONTENT_TYPES.TEXT,
+          },
+          order: [["createdAt", "DESC"]],
+        });
+        // getLastUserMessage = lastMessage.message;
+        sendedMessage = [...lastMessage];
+        allPreviousMessage = lastMessage.map((f) => ({
+          role: f.role,
+          message: f.message,
+          type: f.type,
+          metadata: f?.metadata,
+        }));
+        // console.log('lastMessage: ', lastMessage.prompt);
+      }
+
+      let msg = await createMessage({
+        type: null,
+        message: prompt,
+        metadata: null,
+        userId: userId,
+        sessionId: sessionId,
+        role: MESSAGE_ROLE_TYPES.USER,
+      });
+      sendedMessage.push(msg);
+
+      allPreviousMessage.push({
+        role: msg.role,
+        message: msg.message,
+        type: msg.type,
+        metadata: msg.metadata,
+      });
+
+      const newPrompt = JSON.stringify({
+        allPreviousMessage,
+        newPrompt: prompt,
+      });
+
+      // Get the user intent
+      const intent = await detectUserIntent(newPrompt);
+	  console.log('intent: ', intent);
+      let allNews = [];
+
+      // Generate the post
+      switch (intent) {
+        case "generate_post": {
+          // Generate a new post
+          // Step 1 - Analyse the keywords
+          const keywords = await generateKeywords(prompt, MODAL_TYPE.GROQ);
+         
+          let post = null;
+          try {
+            const { postSummery, news } = await generatePost(keywords);
+            post = postSummery;
+
+            if (news.length) {
+              await updateSession(sessionId, { news });
+              allNews = news;
+            }
+          } catch (error) {
+			
+
+		  }
+
+          if (!post?.post_content) {
+            return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+              status: HTTP_STATUS_CODE.BAD_REQUEST,
+              message: "Please say proper contexts",
+              data: { intent, sendedMessage },
+              error: "",
+            });
+          }
+
+          const allMessage = await generateAllSummaryMessage({
+            postObj: post,
+            keywords,
+            news: allNews,
+            userId,
+            sessionId,
+          });
+          sendedMessage = [...sendedMessage, ...allMessage];
+
+          break;
+        }
+        case "refine_post": {
+          // Refine the post
+          // Generate a new post
+          // Step 1 - Analyse the keywords
+          const keywords = await generateKeywords(newPrompt, MODAL_TYPE.GROQ);
+         
+          let post = null;
+          try {
+            const { postSummery, news } = await generatePost(keywords, allNews, true);
+            post = postSummery;
+
+            if (news.length) {
+              await updateSession(sessionId, { news });
+              allNews = news;
+            }
+          } catch (error) {}
+
+          if (!post?.post_content) {
+            return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+              status: HTTP_STATUS_CODE.BAD_REQUEST,
+              message: "Please say proper contexts",
+              data: { intent, sendedMessage },
+              error: "",
+            });
+          }
+
+          const allMessage = await generateAllSummaryMessage({
+            postObj: post,
+            keywords,
+            news: allNews,
+            userId,
+            sessionId,
+          });
+          sendedMessage = [...sendedMessage, ...allMessage];
+
+          break;
+        }
+        case "generate_image": {
+            // Generate image
+            const imageUrl = await imageGeneration({prompt});
+            let msg = await createMessage({
+              type: CONTENT_TYPES.IMAGE,
+              message: imageUrl,
+              metadata: {
+                userPrompt: prompt,
+              },
+              userId: userId,
+              sessionId: sessionId,
+              role: MESSAGE_ROLE_TYPES.AI,
+            });
+            sendedMessage.push(msg);
+          
+          break;
+		}
+        case "generate_video": {
+          // Generate video
+          const vedioUrl = await videoGeneration({prompt});
+            let msg = await createMessage({
+              type: CONTENT_TYPES.VIDEO,
+              message: vedioUrl,
+              metadata: {
+                userPrompt: prompt,
+              },
+              userId: userId,
+              sessionId: sessionId,
+              role: MESSAGE_ROLE_TYPES.AI,
+            });
+            sendedMessage.push(msg);
+          break;
+        }
+        case "generate_meme":
+          // Generate Meme
+          break;
+        default:
+          break;
+      }
+
+      // const keywords = await generateKeywords(newPromt);
+      // if (!keywords.title) {
+      // 	return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+      // 		status: HTTP_STATUS_CODE.BAD_REQUEST,
+      // 		message:
+      // 			'Failed to generate keywords, please try again with proper prompt',
+      // 		data: '',
+      // 		error: '',
+      // 	});
+      // }
+
+      // Return success response with the user data and token
+      return res.status(HTTP_STATUS_CODE.OK).json({
+        status: HTTP_STATUS_CODE.OK,
+        message: req.__("Session.Created"), // Modify this message if needed
+        data: { intent, sendedMessage },
         error: "",
       });
     } catch (error) {
