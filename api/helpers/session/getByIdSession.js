@@ -7,43 +7,45 @@ const getByIdSession = async (id) => {
       return;
     }
     const query = `SELECT
-      s.id,
-      s.name,
-      s."userId",
-      s.prompt,
-      s.news,
-      s.is_active,
-      s.created_at,
-      s.created_by,
-      s.updated_at,
-      s.updated_by,
-      s.deleted_at,
-      s.deleted_by,
-      s.is_deleted,
-      COALESCE(
-          JSON_AGG(
-              JSON_BUILD_OBJECT(
-                  'messageId', m.id,
-                  'message', m.message,
-                  'type', m.type,
-                  'messageNews', m."messageNews",
-                  'role', m.role,
-                  'metadata', m.metadata,
-                  'created_at', m.created_at,
-                  'created_by', m.created_by
-              )
-          ) FILTER (WHERE m.id IS NOT NULL AND m.is_active = true ),
-          '[]'::JSON
-      ) AS messages
-  FROM
-      public.sessions s
-  LEFT JOIN
-      public.messages m
-  ON
-      s.id = m."sessionId"
-      WHERE s.id = '${sessionId}'
-  GROUP BY
-      s.id;`;
+    s.id,
+    s.name,
+    s."userId",
+    s.prompt,
+    s.news,
+    s.is_active,
+    s.created_at,
+    s.created_by,
+    s.updated_at,
+    s.updated_by,
+    s.deleted_at,
+    s.deleted_by,
+    s.is_deleted,
+    COALESCE(
+        JSON_AGG(
+            JSON_BUILD_OBJECT(
+                'messageId', m.id,
+                'message', m.message,
+                'type', m.type,
+                'messageNews', m."messageNews",
+                'role', m.role,
+                'metadata', m.metadata,
+                'created_at', m.created_at,
+                'created_by', m.created_by
+            )
+            ORDER BY m.created_at ASC
+        ) FILTER (WHERE m.id IS NOT NULL AND m.is_active = true),
+        '[]'::JSON
+    ) AS messages
+FROM
+    public.sessions s
+LEFT JOIN
+    public.messages m
+ON
+    s.id = m."sessionId"
+WHERE
+    s.id = '${sessionId}'
+GROUP BY
+    s.id;`;
     const session = await sequelize.query(query);
     // const session = await Session.findOne({ where: { id: sessionId } });
     if (!session?.[0]) {

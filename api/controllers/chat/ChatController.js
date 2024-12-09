@@ -32,12 +32,12 @@ const {
 module.exports = {
   /**
    * @name generateKeywords
-   * @file ChatGptController.js
+   * @file ChatController.js
    * @param {Request} req
    * @param {Response} res
    * @throwsF
    * @description Get keywords(User Panel)
-   * @author Jainam Shah (Zignuts)
+   * @author Vishnu K (Zignuts)
    */
   create: async (req, res) => {
     try {
@@ -218,7 +218,7 @@ module.exports = {
   },
   /**
    * @name chat
-   * @file ChatGptController.js
+   * @file ChatController.js
    * @param {Request} req
    * @param {Response} res
    * @throwsF
@@ -423,9 +423,8 @@ module.exports = {
           break;
         }
         case "generate_meme":
-          // Generate Meme
+          // Generate Meme image
 
-          // Generate image
           const imageUrl = await imageGeneration({
             prompt: newPrompt,
             type: IMAGE_GENERATION_TYPE.MEME,
@@ -445,17 +444,6 @@ module.exports = {
         default:
           break;
       }
-
-      // const keywords = await generateKeywords(newPromt);
-      // if (!keywords.title) {
-      // 	return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
-      // 		status: HTTP_STATUS_CODE.BAD_REQUEST,
-      // 		message:
-      // 			'Failed to generate keywords, please try again with proper prompt',
-      // 		data: '',
-      // 		error: '',
-      // 	});
-      // }
 
       let finalSession = await getByIdSession(sessionId);
 
