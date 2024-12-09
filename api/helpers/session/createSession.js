@@ -12,10 +12,11 @@ const { Session } = require("../../models");
  * @returns {Object} - The created session object
  */
 async function createSession({ id, prompt, userId, createdBy, updatedBy, name, ...rest }) {
-  console.log('name: ', name);
+  console.log('id: ', id);
   try {
     const newSession = await Session.create({
       id: id ? id : UUID(), // Ensure the ID matches your schema
+      sessionId: id ? id : UUID(),
       prompt,
       userId,
       createdBy,
