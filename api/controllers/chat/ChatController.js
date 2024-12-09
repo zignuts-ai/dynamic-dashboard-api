@@ -36,7 +36,7 @@ module.exports = {
 	create: async (req, res) => {
 		try {
 			const userId = req?.me?.id || null;
-			const { prompt, sessionId } = req.body;
+			const { prompt, sessionId, platform, postType, tone } = req.body;
 
 			let validationObject = {
 				prompt: VALIDATION_RULES.SESSION.PROMPT,
@@ -87,7 +87,7 @@ module.exports = {
 					error: '',
 				});
 			}
-
+			console.log('keywords', keywords);
 			if (!newSession) {
 				newSession = await createSession({
 					id: sessionId,
@@ -117,7 +117,7 @@ module.exports = {
 			let newsData = newSession?.news ?? [];
 			if (!newsData || newsData.length == 0 || keywords.context_change) {
 				newsData = await getNews({
-					search: keywords.source + keywords.platform + keywords.news, // bbclinkedinhello world
+					search: keywords.source + platform + keywords.news,
 					engine: keywords.searchEngine,
 				});
 			}
@@ -128,7 +128,7 @@ module.exports = {
 			const summarizeNews = await articlesSummarizer({
 				prompt,
 				articles: newsData,
-				tone: keywords.tone,
+				tone: tone,
 				contentType: keywords.content_type,
 			});
 
@@ -142,7 +142,7 @@ module.exports = {
 				});
 			}
 
-			if (summarizeNews.post_content) {
+			if (postType === CONTENT_TYPES.TEXT) {
 				const textMessage = await createMessage({
 					type: CONTENT_TYPES.TEXT,
 					role: MESSAGE_ROLE_TYPES.AI,
@@ -156,7 +156,7 @@ module.exports = {
 				messages.push(textMessage);
 			}
 
-			if (summarizeNews.image_prompt) {
+			if (postType === CONTENT_TYPES.IMAGE) {
 				const generatedImageURl = await imageGeneration({
 					prompt: summarizeNews.image_prompt,
 				});
@@ -171,13 +171,13 @@ module.exports = {
 				});
 				messages.push(textMessage);
 			}
-			if (summarizeNews.video_prompt) {
+			if (postType === CONTENT_TYPES.VIDEO) {
 				const generatedImageURl = await videoGeneration({
 					prompt: summarizeNews.video_prompt,
 				});
 
 				const textMessage = await createMessage({
-					type: CONTENT_TYPES.TEXT,
+					type: CONTENT_TYPES.VIDEO,
 					role: MESSAGE_ROLE_TYPES.AI,
 					message: generatedImageURl,
 					metadata: keywords,
