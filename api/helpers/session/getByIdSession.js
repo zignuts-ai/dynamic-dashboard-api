@@ -1,15 +1,13 @@
 const { sequelize } = require("../../models");
 
-
-
 const getByIdSession = async (id) => {
-    try {
-        let sessionId = id
-        if (!sessionId) {
-          return ;
-        }
-        const query = `SELECT
-      s.id AS "sessionId",
+  try {
+    let sessionId = id;
+    if (!sessionId) {
+      return;
+    }
+    const query = `SELECT
+      s.id,
       s.name,
       s."userId",
       s.prompt,
@@ -46,20 +44,20 @@ const getByIdSession = async (id) => {
       WHERE s.id = '${sessionId}'
   GROUP BY
       s.id;`;
-        const session = await sequelize.query(query);
-        // const session = await Session.findOne({ where: { id: sessionId } });
-        if (!session?.[0]) {
-          return 
-        }
+    const session = await sequelize.query(query);
+    // const session = await Session.findOne({ where: { id: sessionId } });
+    if (!session?.[0]) {
+      return;
+    }
 
-        return session?.[0]?.[0]
-      } catch (error) {
-        console.log("error: ", error);
-        //return error response
-        return 
-      }
+    return session?.[0]?.[0];
+  } catch (error) {
+    console.log("error: ", error);
+    //return error response
+    return;
+  }
 };
 
 module.exports = {
-    getByIdSession
-}
+  getByIdSession,
+};
