@@ -1,5 +1,6 @@
 // Import the Session model
-const { Session } = require('../../models/Session'); // Adjust the path as needed
+
+const { Session } = require("../../models");
 
 /**
  * Helper function to update an existing session
@@ -29,7 +30,6 @@ async function updateSession(id, updateData) {
     // Save the updated session
     await session.save();
 
-    console.log('Session updated successfully:', session);
     return session;
   } catch (error) {
     console.error('Error updating session:', error.message);

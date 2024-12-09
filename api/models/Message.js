@@ -19,6 +19,10 @@ const Message = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    messageNews: {
+      type: DataTypes.JSON,
+      allowNull: true,
+    },
     metadata: {
       type: DataTypes.JSON,
       allowNull: true,

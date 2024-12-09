@@ -23,7 +23,6 @@ async function updateMessage(id, updateData) {
       throw new Error('Message not found or no changes made');
     }
 
-    console.log('Message updated successfully:', updatedMessage);
     return updatedMessage;
   } catch (error) {
     console.error('Error updating message:', error.message);

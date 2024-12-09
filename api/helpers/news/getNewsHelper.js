@@ -32,9 +32,9 @@ async function getNews({
     } else {
       params.engine = "google";
     }
-    console.log("params: ", params);
 
     let data = await getJson(
+      
       params,
       (json) =>
         json[params.engine == "google" ? "news_results" : "organic_results"]
@@ -47,6 +47,7 @@ async function getNews({
     } else {
       example = data.organic_results;
     }
+
 
 
     // Fetch and save articles using Promise.allSettled for parallel processing
@@ -65,7 +66,6 @@ async function getNews({
  * @returns {Promise<{url: string, title: string, content: string}>} - Article data.
  */
 async function fetchArticleContent(url) {
-  console.log("url: ", url);
   try {
     const response = await axios.get(url);
     const html = response.data;
@@ -97,7 +97,7 @@ async function fetchAndSaveArticles(articles) {
   
 
   // Use Promise.allSettled for parallel processing of articles
-  const fetchPromises = articles.filter((_,i)=> i <=1).map((article) => {
+  const fetchPromises = articles.filter((_,i)=> i <1).map((article) => {
     const { link } = article;
     return fetchArticleContent(link)
       .then((data) => (data))
@@ -109,14 +109,11 @@ async function fetchAndSaveArticles(articles) {
 
   // Wait for all fetch operations to settle (both fulfilled and rejected)
   let results = await Promise.allSettled(fetchPromises);
-  // console.log('results: ', results);
 
   // Handle the settled results
   const successfulResults = results.filter(result => result.status === 'fulfilled').map(result => result.value);
   const failedResults = results.filter(result => result.status === 'rejected').map(result => result.reason);
 
-  // console.log("successful results: ", successfulResults);
-  // console.log("failed results: ", failedResults);
 
   // Optionally, save the successful results to a file
 

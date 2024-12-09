@@ -13,7 +13,9 @@ Return the response in following JSON structure only.
  "video_prompt": "...",
  "meme": "...",
  "meme_caption": "..."
-}`;
+}
+You must always return the output as a valid JSON pure Stringify Object. Only return the JSON pure Stringify Object and nothing else. 
+`;
 function constructChatGPTMessages({ userPrompt, articles, ...rest }) {
   // Validate inputs
   if (!userPrompt || typeof userPrompt !== "string") {
