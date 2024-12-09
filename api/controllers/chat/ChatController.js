@@ -11,7 +11,10 @@ const {
   articlesSummarizer,
 } = require("../../helpers/chatgpt/articlesSummarizer");
 // const { generateKeywords } = require('../../helpers/chatgpt/generateKeywords');
-const { imageGeneration, IMAGE_GENERATION_TYPE } = require("../../helpers/chatgpt/imageGeneration");
+const {
+  imageGeneration,
+  IMAGE_GENERATION_TYPE,
+} = require("../../helpers/chatgpt/imageGeneration");
 const { videoGeneration } = require("../../helpers/chatgpt/videoGeneration");
 const { createMessage } = require("../../helpers/message/createMessage");
 const { getNews } = require("../../helpers/news/getNewsHelper");
@@ -268,10 +271,10 @@ module.exports = {
           where: {
             sessionId: sessionId,
             // role: MESSAGE_ROLE_TYPES.USER,
-            type: CONTENT_TYPES.TEXT,
+            // type: CONTENT_TYPES.TEXT,
           },
           order: [["createdAt", "DESC"]],
-		  limit: 2, // Adds a limit of 5
+          limit: 2, // Adds a limit of 5
         });
         // getLastUserMessage = lastMessage.message;
         sendedMessage = [...lastMessage];
@@ -279,9 +282,8 @@ module.exports = {
           role: f.role,
           message: f.message,
           type: f.type,
-          metadata: f?.metadata,
+          // metadata: f?.metadata,
         }));
-        // console.log('lastMessage: ', lastMessage.prompt);
       }
 
       let msg = await createMessage({
@@ -298,16 +300,12 @@ module.exports = {
         role: msg.role,
         message: msg.message,
         type: msg.type,
-        metadata: msg.metadata,
       });
 
-      const newPrompt = JSON.stringify({
-        allPreviousMessage,
-        newPrompt: `${prompt} + platform ${platform} + tone ${tone}` ,
-      });
+      const newPrompt = `${prompt} + platform ${platform} + tone ${tone} + content type: ${postType}`
 
       // Get the user intent
-      const intent = await detectUserIntent(newPrompt);
+      const intent = await detectUserIntent(newPrompt, MODAL_TYPE.CHATGPT);
       let allNews = [];
 
       // Generate the post
@@ -316,7 +314,8 @@ module.exports = {
           // Generate a new post
           // Step 1 - Analyse the keywords
           const keywords = await generateKeywords(newPrompt, MODAL_TYPE.GROQ);
-         
+
+          // Step 2 - Crawl new based on keywords and summarize the content
           let post = null;
           try {
             const { postSummery, news } = await generatePost(keywords);
@@ -326,11 +325,9 @@ module.exports = {
               await updateSession(sessionId, { news });
               allNews = news;
             }
-          } catch (error) {
-			
+          } catch (error) {}
 
-		  }
-
+          // if crawl news have no post in response return error
           if (!post?.post_content) {
             return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
               status: HTTP_STATUS_CODE.BAD_REQUEST,
@@ -356,10 +353,14 @@ module.exports = {
           // Generate a new post
           // Step 1 - Analyse the keywords
           const keywords = await generateKeywords(newPrompt, MODAL_TYPE.GROQ);
-         
+
           let post = null;
           try {
-            const { postSummery, news } = await generatePost(keywords, allNews, true);
+            const { postSummery, news } = await generatePost(
+              keywords,
+              allNews,
+              true
+            );
             post = postSummery;
 
             if (news.length) {
@@ -389,55 +390,57 @@ module.exports = {
           break;
         }
         case "generate_image": {
-            // Generate image
-            const imageUrl = await imageGeneration({prompt: newPrompt});
-            let msg = await createMessage({
-              type: CONTENT_TYPES.IMAGE,
-              message: imageUrl,
-              metadata: {
-                userPrompt: prompt,
-              },
-              userId: userId,
-              sessionId: sessionId,
-              role: MESSAGE_ROLE_TYPES.AI,
-            });
-            sendedMessage.push(msg);
-          
+          // Generate image
+          const imageUrl = await imageGeneration({ prompt: newPrompt });
+          let msg = await createMessage({
+            type: CONTENT_TYPES.IMAGE,
+            message: imageUrl,
+            metadata: {
+              userPrompt: prompt,
+            },
+            userId: userId,
+            sessionId: sessionId,
+            role: MESSAGE_ROLE_TYPES.AI,
+          });
+          sendedMessage.push(msg);
+
           break;
-		}
+        }
         case "generate_video": {
           // Generate video
-          const vedioUrl = await videoGeneration({prompt: newPrompt});
-            let msg = await createMessage({
-              type: CONTENT_TYPES.VIDEO,
-              message: vedioUrl,
-              metadata: {
-                userPrompt: prompt,
-              },
-              userId: userId,
-              sessionId: sessionId,
-              role: MESSAGE_ROLE_TYPES.AI,
-            });
-            sendedMessage.push(msg);
+          const vedioUrl = await videoGeneration({ prompt: newPrompt });
+          let msg = await createMessage({
+            type: CONTENT_TYPES.VIDEO,
+            message: vedioUrl,
+            metadata: {
+              userPrompt: prompt,
+            },
+            userId: userId,
+            sessionId: sessionId,
+            role: MESSAGE_ROLE_TYPES.AI,
+          });
+          sendedMessage.push(msg);
           break;
         }
         case "generate_meme":
-			
           // Generate Meme
 
-		  // Generate image
-		  const imageUrl = await imageGeneration({prompt: newPrompt, type:IMAGE_GENERATION_TYPE.MEME });
-		  let msg = await createMessage({
-			type: CONTENT_TYPES.IMAGE,
-			message: imageUrl,
-			metadata: {
-			  userPrompt: prompt,
-			},
-			userId: userId,
-			sessionId: sessionId,
-			role: MESSAGE_ROLE_TYPES.AI,
-		  });
-		  sendedMessage.push(msg);
+          // Generate image
+          const imageUrl = await imageGeneration({
+            prompt: newPrompt,
+            type: IMAGE_GENERATION_TYPE.MEME,
+          });
+          let msg = await createMessage({
+            type: CONTENT_TYPES.IMAGE,
+            message: imageUrl,
+            metadata: {
+              userPrompt: prompt,
+            },
+            userId: userId,
+            sessionId: sessionId,
+            role: MESSAGE_ROLE_TYPES.AI,
+          });
+          sendedMessage.push(msg);
           break;
         default:
           break;
@@ -454,8 +457,7 @@ module.exports = {
       // 	});
       // }
 
-	  let finalSession = await getByIdSession(sessionId);
-
+      let finalSession = await getByIdSession(sessionId);
 
       // Return success response with the user data and token
       return res.status(HTTP_STATUS_CODE.OK).json({

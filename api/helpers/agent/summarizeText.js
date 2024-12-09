@@ -1,5 +1,6 @@
 const { openai, CONTENT_TYPES } = require('../../../config/constants');
 const { constructChatGPTMessages } = require('../../utils/chatgpt/chatgpt');
+const { chatgptTexttoText } = require('../model/chatgptTextToText');
 const { groqTextToText } = require('../model/groqTextToText');
 
 const systemPrompt = `You are an expert social media marketer and creative content writer. I will give you news article content, targeted social media, content type, tone of the post and any other preferences. You need to write a social media post using the given information. 
@@ -40,7 +41,7 @@ async function summarizeText(prompt, newsData) {
 		// 	});
 		// }
 
-		const response = await groqTextToText(messages);
+		const response = await chatgptTexttoText(messages);
 		// console.log('response: grok ', response);
 
 		return response;
