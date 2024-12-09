@@ -226,6 +226,7 @@ module.exports = {
     try {
       // fetching the required fields from req
       const userId = req?.me?.id || null;
+	  console.log('userId: ', userId);s
       const { prompt, sessionId } = req.body;
 
       // validating fields
@@ -335,7 +336,7 @@ module.exports = {
             return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
               status: HTTP_STATUS_CODE.BAD_REQUEST,
               message: "Please say proper contexts",
-              data: { intent, sendedMessage },
+              data: [],
               error: "",
             });
           }
@@ -441,7 +442,7 @@ module.exports = {
 
 	  const allMessage = {
         ...(session?.dataValues ?? session ?? {}),
-        messages: [...(session?.messages ?? []), ...sendedMessage],
+        messages: [...sendedMessage],
         news: [...(session?.news ?? []), ...allNews],
       };
 
