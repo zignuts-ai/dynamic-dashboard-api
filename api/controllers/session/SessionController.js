@@ -13,6 +13,7 @@ const { generateKeywords } = require("../../helpers/chatgpt/generateKeywords");
 const { createMessage } = require("../../helpers/message/createMessage");
 const { getNews } = require("../../helpers/news/getNewsHelper");
 const { createSession } = require("../../helpers/session/createSession");
+const { getByIdSession } = require("../../helpers/session/getByIdSession");
 const { Session, Message, sequelize } = require("../../models");
 
 module.exports = {
@@ -51,7 +52,6 @@ module.exports = {
         });
       }
 
-
       const findSession = await Session.findOne({
         where: {
           id: sessionId,
@@ -66,11 +66,10 @@ module.exports = {
         });
       }
 
-
       const keywords = await generateKeywords(prompt);
-     
-      console.log('keywords: typeof ', typeof keywords);
-      console.log('keywords: ', keywords);
+
+      console.log("keywords: typeof ", typeof keywords);
+      console.log("keywords: ", keywords);
       if (!keywords.title) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
@@ -80,8 +79,6 @@ module.exports = {
           error: "",
         });
       }
-
-
 
       let newSession = await createSession({
         id: sessionId,
@@ -153,58 +150,13 @@ module.exports = {
           error: "",
         });
       }
-      const query = `SELECT
-    s.id AS "sessionId",
-    s.name,
-    s."userId",
-    s.prompt,
-    s.news,
-    s.is_active,
-    s.created_at,
-    s.created_by,
-    s.updated_at,
-    s.updated_by,
-    s.deleted_at,
-    s.deleted_by,
-    s.is_deleted,
-    COALESCE(
-        JSON_AGG(
-            JSON_BUILD_OBJECT(
-                'messageId', m.id,
-                'message', m.message,
-				'type', m.type,
-				'role', m.role,
-        'messageNews', m.'messageNews',
-				'metadata', m.metadata,
-                'created_at', m.created_at,
-                'created_by', m.created_by
-            )
-        ) FILTER (WHERE m.id IS NOT NULL AND m.is_active = true ),
-        '[]'::JSON
-    ) AS messages
-FROM
-    public.sessions s
-LEFT JOIN
-    public.messages m
-ON
-    s.id = m."sessionId"
-	WHERE s.id = '${sessionId}'
-GROUP BY
-    s.id;`;
-      const session = await sequelize.query(query);
-      // const session = await Session.findOne({ where: { id: sessionId } });
-      if (!session?.[0]) {
-        return res.status(HTTP_STATUS_CODE.NOT_FOUND).json({
-          status: HTTP_STATUS_CODE.NOT_FOUND,
-          message: req.__("Session.NotFound"), // Modify this message if needed
-          data: "",
-          error: "",
-        });
-      }
+
+      const session = await getByIdSession(sessionId);
+
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: req.__("Session.Found"), // Modify this message if needed
-        data: session?.[0],
+        data: session,
         error: "",
       });
     } catch (error) {
@@ -221,7 +173,7 @@ GROUP BY
   getList: async (req, res) => {
     try {
       const userId = req.me.id;
-      if(!userId){
+      if (!userId) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
           status: HTTP_STATUS_CODE.BAD_REQUEST,
           message: "User id is required",
@@ -229,7 +181,7 @@ GROUP BY
           error: "",
         });
       }
- 
+
       const sessions = await Session.findAll({
         where: {
           userId: userId,

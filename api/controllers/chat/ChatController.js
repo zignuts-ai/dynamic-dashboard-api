@@ -138,13 +138,12 @@ module.exports = {
         });
       }
 
-
       if (summarizeNews.post_content) {
         const textMessage = await createMessage({
           type: CONTENT_TYPES.TEXT,
           role: MESSAGE_ROLE_TYPES.AI,
           message: summarizeNews.post_content,
-          metadata: null,
+          metadata: keywords,
           userId: userId,
           sessionId: sessionId,
           messageNews: newsData,
@@ -161,7 +160,7 @@ module.exports = {
           type: CONTENT_TYPES.IMAGE,
           role: MESSAGE_ROLE_TYPES.AI,
           message: generatedImageURl,
-          metadata: null,
+          metadata: keywords,
           userId: userId,
           sessionId: sessionId,
           messageNews: newsData,
@@ -177,7 +176,7 @@ module.exports = {
           type: CONTENT_TYPES.TEXT,
           role: MESSAGE_ROLE_TYPES.AI,
           message: generatedImageURl,
-          metadata: null,
+          metadata: keywords,
           userId: userId,
           sessionId: sessionId,
           messageNews: newsData,
