@@ -28,6 +28,7 @@ const { Session, Message, sequelize } = require("../../models");
 const {
   generateAllSummaryMessage,
 } = require("../../helpers/agent/generateAllSummaryMessage");
+const { chatgptTexttoText } = require("../../helpers/model/chatgptTextToText");
 
 module.exports = {
   /**
@@ -259,9 +260,18 @@ module.exports = {
       let session = await getByIdSession(sessionId);
       let getLastUserMessage;
       if (!session) {
+        
+        const title = await chatgptTexttoText([
+          {
+            role: 'system',
+            content: `Create a short title from user prompt`,
+          },
+          { role: 'user', content: `${prompt}` },
+        ])
         session = await createSession({
           id: sessionId,
           prompt,
+          name: title,
           userId: userId || null,
           createdBy: userId || null,
           updatedBy: userId || null,
