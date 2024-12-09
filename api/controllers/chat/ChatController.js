@@ -226,7 +226,7 @@ module.exports = {
     try {
       // fetching the required fields from req
       const userId = req?.me?.id || null;
-	  console.log('userId: ', userId);s
+	  console.log('userId: ', userId);
       const { prompt, sessionId } = req.body;
 
       // validating fields
