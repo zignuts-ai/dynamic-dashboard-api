@@ -14,11 +14,12 @@ async function videoGeneration({ prompt }) {
 
     const newPrompt = await improveVideoGenerationPrompt(prompt)
     const inputPrompt = {
-      fps: 24,
+      // fps: 30,
       prompt: newPrompt,
-      num_frames: 121,
-      guidance_scale: 5.5,
-      num_inference_steps: 30,
+      // num_frames: 163,
+      // guidance_scale: 6,
+      // num_inference_steps: 20
+     
     };
 
     // Call the Replicate API
