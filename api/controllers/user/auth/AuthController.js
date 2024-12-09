@@ -637,7 +637,10 @@ module.exports = {
   logout: async (req, res) => {
     try {
       // Extract token from headers
-      const token = req.headers.me;
+      let token = req.headers['authorization'];
+      if (token && token.startsWith('Bearer ')) {
+        token = token.split(' ')[1];
+      }
       // Check if token exists
       if (!token) {
         return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({

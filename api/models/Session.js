@@ -22,6 +22,10 @@ const Session = sequelize.define(
       type: DataTypes.STRING(40),
       allowNull: true, 
     },
+    news: {
+      type: DataTypes.JSON,
+      allowNull: true, 
+    },
     prompt: {
       type: DataTypes.TEXT,
       allowNull: true,

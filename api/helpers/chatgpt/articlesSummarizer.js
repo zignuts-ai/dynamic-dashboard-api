@@ -25,6 +25,7 @@ async function articlesSummarizer({
         ...rest,
       });
     }
+
     const response = await groqTextToText(messages);
 
     return response;

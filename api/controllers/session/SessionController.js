@@ -51,16 +51,6 @@ module.exports = {
         });
       }
 
-      const keywords = await generateKeywords(prompt);
-      if (!keywords.title) {
-        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
-          status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message:
-            "Failed to generate keywords, please try again with proper prompt",
-          data: "",
-          error: "",
-        });
-      }
 
       const findSession = await Session.findOne({
         where: {
@@ -75,6 +65,23 @@ module.exports = {
           error: "",
         });
       }
+
+
+      const keywords = await generateKeywords(prompt);
+     
+      console.log('keywords: typeof ', typeof keywords);
+      console.log('keywords: ', keywords);
+      if (!keywords.title) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message:
+            "Failed to generate keywords, please try again with proper prompt",
+          data: "",
+          error: "",
+        });
+      }
+
+
 
       let newSession = await createSession({
         id: sessionId,
@@ -151,6 +158,7 @@ module.exports = {
     s.name,
     s."userId",
     s.prompt,
+    s.news,
     s.is_active,
     s.created_at,
     s.created_by,
@@ -166,6 +174,7 @@ module.exports = {
                 'message', m.message,
 				'type', m.type,
 				'role', m.role,
+        'messageNews', m.'messageNews',
 				'metadata', m.metadata,
                 'created_at', m.created_at,
                 'created_by', m.created_by
@@ -200,6 +209,39 @@ GROUP BY
       });
     } catch (error) {
       console.log("error: ", error);
+      //return error response
+      return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
+        status: HTTP_STATUS_CODE.SERVER_ERROR,
+        message: "",
+        data: "",
+        error: error.message,
+      });
+    }
+  },
+  getList: async (req, res) => {
+    try {
+      const userId = req.me.id;
+      if(!userId){
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message: "User id is required",
+          data: "",
+          error: "",
+        });
+      }
+ 
+      const sessions = await Session.findAll({
+        where: {
+          userId: userId,
+        },
+      });
+      return res.status(HTTP_STATUS_CODE.OK).json({
+        status: HTTP_STATUS_CODE.OK,
+        message: req.__("Session.List"), // Modify this message if needed
+        data: sessions,
+        error: "",
+      });
+    } catch (error) {
       //return error response
       return res.status(HTTP_STATUS_CODE.SERVER_ERROR).json({
         status: HTTP_STATUS_CODE.SERVER_ERROR,
