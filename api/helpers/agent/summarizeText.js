@@ -5,9 +5,9 @@ const { groqTextToText } = require('../model/groqTextToText');
 
 const systemPrompt = `You are an expert social media marketer and creative content writer. I will give you news article content, targeted social media, content type, tone of the post and any other preferences. You need to write a social media post using the given information. 
 
-If the content type includes image, write a suitable prompt for image generation using Dall-E. 
-If the content type includes video, write a suitable prompt for video generation using Runway. 
-If the content type includes meme, suggest a meme with a suitable caption. 
+If the content type includes image, you should write a suitable prompt for image generation using Dall-E. 
+If the content type includes video,you should write a suitable prompt for video generation using Runway. 
+If the content type includes meme, you should suggest a meme with a suitable caption. 
 If any content type are NOT specified, keep them blank. 
 
 Return the response in following JSON structure only.  

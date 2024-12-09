@@ -312,7 +312,7 @@ module.exports = {
         type: msg.type,
       });
 
-      const newPrompt = `${prompt} + platform ${platform} + tone ${tone} + content type: ${postType}`
+      const newPrompt = `${postType} + ${prompt} + platform ${platform} + tone ${tone} `
 
       // Get the user intent
       const intent = await detectUserIntent(newPrompt, MODAL_TYPE.CHATGPT);
@@ -400,6 +400,28 @@ module.exports = {
           break;
         }
         case "generate_image": {
+          const imageDecription = await chatgptTexttoText([
+            {
+              role: 'system',
+              content: `Create a post content based on provided platfrom , tone and prompt.`,
+            },
+            { role: 'user', content: JSON.stringify({
+              prompt,
+              platform,
+              tone
+            }) },
+          ])
+          let testMsg = await createMessage({
+            type: CONTENT_TYPES.TEXT,
+            message: imageDecription,
+            metadata: {
+              userPrompt: prompt,
+            },
+            userId: userId,
+            sessionId: sessionId,
+            role: MESSAGE_ROLE_TYPES.AI,
+          });
+          sendedMessage.push(testMsg);
           // Generate image
           const imageUrl = await imageGeneration({ prompt: newPrompt });
           let msg = await createMessage({
@@ -417,6 +439,28 @@ module.exports = {
           break;
         }
         case "generate_video": {
+          const videoPostDecription = await chatgptTexttoText([
+            {
+              role: 'system',
+              content: `Create a post content based on provided platfrom , tone and prompt.`,
+            },
+            { role: 'user', content: JSON.stringify({
+              prompt,
+              platform,
+              tone
+            }) },
+          ])
+          let testMsg = await createMessage({
+            type: CONTENT_TYPES.TEXT,
+            message: videoPostDecription,
+            metadata: {
+              userPrompt: prompt,
+            },
+            userId: userId,
+            sessionId: sessionId,
+            role: MESSAGE_ROLE_TYPES.AI,
+          });
+          sendedMessage.push(testMsg);
           // Generate video
           const vedioUrl = await videoGeneration({ prompt: newPrompt });
           let msg = await createMessage({
