@@ -11,7 +11,7 @@ const {
   articlesSummarizer,
 } = require("../../helpers/chatgpt/articlesSummarizer");
 // const { generateKeywords } = require('../../helpers/chatgpt/generateKeywords');
-const { imageGeneration } = require("../../helpers/chatgpt/imageGeneration");
+const { imageGeneration, IMAGE_GENERATION_TYPE } = require("../../helpers/chatgpt/imageGeneration");
 const { videoGeneration } = require("../../helpers/chatgpt/videoGeneration");
 const { createMessage } = require("../../helpers/message/createMessage");
 const { getNews } = require("../../helpers/news/getNewsHelper");
@@ -226,8 +226,7 @@ module.exports = {
     try {
       // fetching the required fields from req
       const userId = req?.me?.id || null;
-	  console.log('userId: ', userId);
-      const { prompt, sessionId } = req.body;
+      const { prompt, sessionId, platform, postType, tone } = req.body;
 
       // validating fields
       let validationObject = {
@@ -272,6 +271,7 @@ module.exports = {
             type: CONTENT_TYPES.TEXT,
           },
           order: [["createdAt", "DESC"]],
+		  limit: 2, // Adds a limit of 5
         });
         // getLastUserMessage = lastMessage.message;
         sendedMessage = [...lastMessage];
@@ -303,12 +303,11 @@ module.exports = {
 
       const newPrompt = JSON.stringify({
         allPreviousMessage,
-        newPrompt: prompt,
+        newPrompt: `${prompt} + platform ${platform} + tone ${tone}` ,
       });
 
       // Get the user intent
       const intent = await detectUserIntent(newPrompt);
-	  console.log('intent: ', intent);
       let allNews = [];
 
       // Generate the post
@@ -316,7 +315,7 @@ module.exports = {
         case "generate_post": {
           // Generate a new post
           // Step 1 - Analyse the keywords
-          const keywords = await generateKeywords(prompt, MODAL_TYPE.GROQ);
+          const keywords = await generateKeywords(newPrompt, MODAL_TYPE.GROQ);
          
           let post = null;
           try {
@@ -391,7 +390,7 @@ module.exports = {
         }
         case "generate_image": {
             // Generate image
-            const imageUrl = await imageGeneration({prompt});
+            const imageUrl = await imageGeneration({prompt: newPrompt});
             let msg = await createMessage({
               type: CONTENT_TYPES.IMAGE,
               message: imageUrl,
@@ -408,7 +407,7 @@ module.exports = {
 		}
         case "generate_video": {
           // Generate video
-          const vedioUrl = await videoGeneration({prompt});
+          const vedioUrl = await videoGeneration({prompt: newPrompt});
             let msg = await createMessage({
               type: CONTENT_TYPES.VIDEO,
               message: vedioUrl,
@@ -423,7 +422,22 @@ module.exports = {
           break;
         }
         case "generate_meme":
+			
           // Generate Meme
+
+		  // Generate image
+		  const imageUrl = await imageGeneration({prompt: newPrompt, type:IMAGE_GENERATION_TYPE.MEME });
+		  let msg = await createMessage({
+			type: CONTENT_TYPES.IMAGE,
+			message: imageUrl,
+			metadata: {
+			  userPrompt: prompt,
+			},
+			userId: userId,
+			sessionId: sessionId,
+			role: MESSAGE_ROLE_TYPES.AI,
+		  });
+		  sendedMessage.push(msg);
           break;
         default:
           break;
@@ -440,18 +454,14 @@ module.exports = {
       // 	});
       // }
 
-	  const allMessage = {
-        ...(session?.dataValues ?? session ?? {}),
-        messages: [...sendedMessage],
-        news: [...(session?.news ?? []), ...allNews],
-      };
+	  let finalSession = await getByIdSession(sessionId);
 
 
       // Return success response with the user data and token
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: req.__("Session.Created"), // Modify this message if needed
-        data: allMessage,
+        data: finalSession,
         error: "",
       });
     } catch (error) {

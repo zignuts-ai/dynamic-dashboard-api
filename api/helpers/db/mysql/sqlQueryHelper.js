@@ -4,10 +4,9 @@ require("dotenv").config();
 
 // Initialize OpenAI API with your OpenAI API key from .env
 const llm = new OpenAI({
-  openAIApiKey: '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', // Make sure to add OPENAI_API_KEY to your .env file
+  openAIApiKey: process.env.OPENAI_API_KEY, // Make sure to add OPENAI_API_KEY to your .env file
   temperature: 0.2, // Low temperature for deterministic results
 });
-
 /**
  * Converts a natural language question into an SQL query using the OpenAI model.
  * @param {object} schema - The database schema, structured as a JSON object.

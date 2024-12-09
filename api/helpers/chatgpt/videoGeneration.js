@@ -6,12 +6,16 @@ const {
 const { writeFile, mkdir } = require("node:fs/promises");
 const { randomUUID } = require("crypto");
 const path = require("path");
+const { groqTextToText } = require("../model/groqTextToText");
+const { chatgptTexttoText } = require("../model/chatgptTextToText");
 
 async function videoGeneration({ prompt }) {
   try {
+
+    const newPrompt = await improveVideoGenerationPrompt(prompt)
     const inputPrompt = {
       fps: 24,
-      prompt,
+      prompt: newPrompt,
       num_frames: 121,
       guidance_scale: 5.5,
       num_inference_steps: 30,
@@ -49,6 +53,31 @@ async function videoGeneration({ prompt }) {
     );
     throw error; // Re-throw the error for further handling
   }
+}
+
+const videoGenerateImprovePrompt = `Generate a humorous video meme prompt based on the following user description. Include:
+
+Scene Description: Detailed setting, characters, and key moments.
+Character Actions & Expressions: Exaggerated reactions or movements.
+Dialogues/Subtitles: Funny lines or voiceovers.
+Audio & Sound Effects: Background music and sound effects that enhance humor.
+Contextual Elements: Additional humorous details (e.g., crowd reactions, props).
+Keep it short, comedic, and playful in tone.`
+
+async function improveVideoGenerationPrompt (prompt) {
+  try {
+    const messages = [
+      {
+        role: "system",
+        content: videoGenerateImprovePrompt,
+      },
+      { role: "user", content: `${prompt}` },
+    ];
+
+    const response = await chatgptTexttoText(messages);
+
+    return response;
+  } catch (error) {}
 }
 
 module.exports = { videoGeneration };
