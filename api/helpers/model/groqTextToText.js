@@ -6,6 +6,7 @@ async function groqTextToText(messageData) {
     const payload = {
       messages: messageData,
       model: "llama-3.3-70b-versatile",
+      temperature: 0.8
     };
 
     // Send request to GROQ API
@@ -18,6 +19,8 @@ async function groqTextToText(messageData) {
       keyword = response.choices[0].message.content;
     }
     // Return the response
+    console.log('keyword: grok ', keyword);
+
     return keyword;
   } catch (error) {
     throw error;

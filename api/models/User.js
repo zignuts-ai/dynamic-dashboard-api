@@ -64,7 +64,12 @@ const User = sequelize.define(
     tableName: 'user',
     freezeTableName: true,
     timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['email'],
+      },
+    ],
   }
 );
-
 module.exports = User;

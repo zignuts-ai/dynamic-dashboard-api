@@ -4,6 +4,7 @@ async function chatgptTexttoText(messageData){
     let response = await openai.chat.completions.create({
         model: "gpt-4", // You can also use 'gpt-4-turbo'
         messages: messageData,
+        
       });
         // Extracting and returning keywords
     let keywords = response.choices[0].message.content.trim();
