@@ -372,7 +372,7 @@ module.exports = {
             return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
               status: HTTP_STATUS_CODE.BAD_REQUEST,
               message: "Please say proper contexts",
-              data: { intent, sendedMessage },
+              data: [],
               error: "",
             });
           }
@@ -439,11 +439,18 @@ module.exports = {
       // 	});
       // }
 
+	  const allMessage = {
+        ...(session?.dataValues ?? session ?? {}),
+        messages: [...(session?.messages ?? []), ...sendedMessage],
+        news: [...(session?.news ?? []), ...allNews],
+      };
+
+
       // Return success response with the user data and token
       return res.status(HTTP_STATUS_CODE.OK).json({
         status: HTTP_STATUS_CODE.OK,
         message: req.__("Session.Created"), // Modify this message if needed
-        data: { intent, sendedMessage },
+        data: allMessage,
         error: "",
       });
     } catch (error) {
