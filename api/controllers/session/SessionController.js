@@ -51,16 +51,6 @@ module.exports = {
         });
       }
 
-      const keywords = await generateKeywords(prompt);
-      if (!keywords.title) {
-        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
-          status: HTTP_STATUS_CODE.BAD_REQUEST,
-          message:
-            "Failed to generate keywords, please try again with proper prompt",
-          data: "",
-          error: "",
-        });
-      }
 
       const findSession = await Session.findOne({
         where: {
@@ -75,6 +65,23 @@ module.exports = {
           error: "",
         });
       }
+
+
+      const keywords = await generateKeywords(prompt);
+     
+      console.log('keywords: typeof ', typeof keywords);
+      console.log('keywords: ', keywords);
+      if (!keywords.title) {
+        return res.status(HTTP_STATUS_CODE.BAD_REQUEST).json({
+          status: HTTP_STATUS_CODE.BAD_REQUEST,
+          message:
+            "Failed to generate keywords, please try again with proper prompt",
+          data: "",
+          error: "",
+        });
+      }
+
+
 
       let newSession = await createSession({
         id: sessionId,

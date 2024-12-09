@@ -44,6 +44,13 @@ module.exports.isGuestUser = async (req, res, next) => {
             }
           } else {
             console.warn('User not found for ID:', decodedToken.id);
+            return res.status(HTTP_STATUS_CODE.UNAUTHORIZED).json({
+              status: HTTP_STATUS_CODE.UNAUTHORIZED,
+              errorCode: '',
+              message: 'User not found.',
+              data: '',
+              error: '',
+            })
           }
         }
       } catch (error) {
