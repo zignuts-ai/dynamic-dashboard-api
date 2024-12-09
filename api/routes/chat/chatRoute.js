@@ -12,7 +12,7 @@ const { isGuestUser } = require('../../policies/isGuestUser');
 
 // Routes for controllers
 router.post('/create', [isGuestUser], ChatController.create);
-router.post('/generate', ChatController.chat);
+router.post('/generate',[isGuestUser], ChatController.chat);
 
 // Export routes
 module.exports = router;
