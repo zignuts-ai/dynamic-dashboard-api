@@ -41,7 +41,7 @@ async function summarizeText(prompt, newsData) {
 		// 	});
 		// }
 
-		const response = await chatgptTexttoText(messages);
+		const response = await groqTextToText(messages);
 		// console.log('response: grok ', response);
 
 		return response;

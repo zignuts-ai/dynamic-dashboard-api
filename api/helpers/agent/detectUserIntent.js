@@ -30,7 +30,7 @@ async function detectUserIntent(query, type = MODAL_TYPE.GROQ) {
 		if (type == MODAL_TYPE.GROQ) {
 			response = await groqTextToText(messageData);
 		} else {
-			response = await chatgptTexttoText(messageData);
+			response = await groqTextToText(messageData);
 		}
 
 		return response;

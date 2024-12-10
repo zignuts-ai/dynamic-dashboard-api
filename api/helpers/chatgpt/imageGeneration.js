@@ -49,7 +49,7 @@ async function improveImagePrompt(prompt) {
       { role: "user", content: `${prompt}` },
     ];
 
-    const response = await chatgptTexttoText(messages);
+    const response = await groqTextToText(messages);
 
     return response;
   } catch (error) {
@@ -70,7 +70,7 @@ async function improveMemeImagePrompt(prompt) {
       { role: "user", content: `${prompt}` },
     ];
 
-    const response = await chatgptTexttoText(messages);
+    const response = await groqTextToText(messages);
 
     return response;
   } catch (error) {
