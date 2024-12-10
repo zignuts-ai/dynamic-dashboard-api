@@ -2,7 +2,7 @@ const { openai, MODAL_TYPE } = require("../../../config/constants");
 
 async function chatgptTexttoText(messageData){
     let response = await openai.chat.completions.create({
-        model: "gpt-4", // You can also use 'gpt-4-turbo'
+        model: "gpt-4o-mini", // You can also use 'gpt-4-turbo'
         messages: messageData,
         
       });

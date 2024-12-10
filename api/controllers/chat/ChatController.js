@@ -28,7 +28,7 @@ const { Session, Message, sequelize } = require("../../models");
 const {
   generateAllSummaryMessage,
 } = require("../../helpers/agent/generateAllSummaryMessage");
-const { chatgptTexttoText } = require("../../helpers/model/chatgptTextToText");
+const { groqTextToText } = require("../../helpers/model/groqTextToText");
 
 module.exports = {
   /**
@@ -261,7 +261,7 @@ module.exports = {
       let getLastUserMessage;
       if (!session) {
         
-        const title = await chatgptTexttoText([
+        const title = await groqTextToText([
           {
             role: 'system',
             content: `Create a short title from user prompt`,
@@ -315,7 +315,7 @@ module.exports = {
       const newPrompt = `${postType} + ${prompt} + platform ${platform} + tone ${tone} `
 
       // Get the user intent
-      const intent = await detectUserIntent(newPrompt, MODAL_TYPE.CHATGPT);
+      const intent = await detectUserIntent(newPrompt, MODAL_TYPE.GROQ);
       let allNews = [];
 
       // Generate the post
@@ -400,7 +400,7 @@ module.exports = {
           break;
         }
         case "generate_image": {
-          const imageDecription = await chatgptTexttoText([
+          const imageDecription = await groqTextToText([
             {
               role: 'system',
               content: `Create a post content based on provided platfrom , tone and prompt.`,
@@ -439,7 +439,7 @@ module.exports = {
           break;
         }
         case "generate_video": {
-          const videoPostDecription = await chatgptTexttoText([
+          const videoPostDecription = await groqTextToText([
             {
               role: 'system',
               content: `Create a post content based on provided platfrom , tone and prompt.`,
